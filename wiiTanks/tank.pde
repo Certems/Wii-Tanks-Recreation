@@ -11,8 +11,6 @@ class tank{
     float minSpeed; //Reversing speed
     float rotSpeed; //Rotation speed for chassis
     //**NOTE; Turret has no rotation speed limit, instantaneous
-    boolean mForward  = false;
-    boolean mBackward = false;
     boolean tCW  = false;
     boolean tCCW = false;
     
@@ -31,29 +29,19 @@ class tank{
         turretRot  = initTurretRot;
     }
 
-    void calcDynamics(){
-        calcMoveSpeed();
-        calcTurnSpeed();
-        //...
-    }
     void calcPos(){
         PVector dir = new PVector(cos(chassisRot), sin(chassisRot), 0);
         pos.x += speed*dir.x;
         pos.y += speed*dir.y;
     }
-    void calcMoveSpeed(){
-        speed = 0.0;
-        if(mForward){
-            speed += maxSpeed;}
-        if(mBackward){
-            speed += minSpeed;}
+    PVector getVelocity(){
+        return new PVector(speed*cos(chassisRot), speed*sin(chassisRot), 0);
     }
-    void calcTurnSpeed(){
-        if(tCW){
-            chassisRot +=  rotSpeed;}
+    void calcRotation(){
         if(tCCW){
-            chassisRot += -rotSpeed;}
-        chassisRot = (chassisRot % (2.0*PI));
+            chassisRot += rotSpeed;}
+        if(tCW){
+            chassisRot -= rotSpeed;}
     }
     void fireShell(map cMap){
         /*
@@ -75,24 +63,7 @@ class tank{
         newMine.whiteList.add(ID);
         cMap.mines.add(newMine);
     }
-    boolean checkTerrainCollision(terrain cTerrain, float tWidth){
-        /*
-        [Point] with [Box] collision
-        Checks whether this tank is colliding with a given piece of terrain
-        Terrain is only checked if within a radius of the tank
-        True is returned if collision should occur
-        */
-        PVector vel = new PVector(speed*cos(chassisRot), speed*sin(chassisRot), 0);
-        boolean withinX = (cTerrain.pos.x -tWidth/2.0 < pos.x+vel.x) && (pos.x+vel.x < cTerrain.pos.x +tWidth/2.0);
-        boolean withinY = (cTerrain.pos.y -tWidth/2.0 < pos.y+vel.y) && (pos.y+vel.y < cTerrain.pos.y +tWidth/2.0);
-        if(withinX && withinY){
-            //If will be inside terrain NEXT frame, then will collide
-            return true;
-        }
-        else{
-            return false;
-        }
-    }
+    
 }
 
 class red_tank extends tank{

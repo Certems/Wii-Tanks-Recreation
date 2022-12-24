@@ -34,26 +34,23 @@ class calculator{
     }
     void calcAiTanks(map cMap){
         for(int i=cMap.AI_tanks.size()-1; i>=0; i--){
-            calcTankDynamics(cMap.AI_tanks.get(i));
             calcTankTerrainCollision(cMap.AI_tanks.get(i), i, cMap);
         }
         for(int i=cMap.AI_tanks.size()-1; i>=0; i--){
+            cMap.AI_tanks.get(i).calcRotation();
             cMap.AI_tanks.get(i).calcPos();
             //...
         }
     }
     void calcPlayerTanks(map cMap){
         for(int i=cMap.player_tanks.size()-1; i>=0; i--){
-            calcTankDynamics(cMap.player_tanks.get(i));
             calcTankTerrainCollision(cMap.player_tanks.get(i), i, cMap);
         }
         for(int i=cMap.player_tanks.size()-1; i>=0; i--){
+            cMap.player_tanks.get(i).calcRotation();
             cMap.player_tanks.get(i).calcPos();
             //...
         }
-    }
-    void calcTankDynamics(tank cTank){
-        cTank.calcDynamics();
     }
     void calcShells(ArrayList<shell> shells){
         /*
@@ -70,6 +67,26 @@ class calculator{
     }
     void calcShellDynamics(shell cShell){
         cShell.calcDynamics();
+    }
+    boolean checkSquareCollision(PVector objPos, PVector objVel, PVector targetPos, float r){
+        /*
+        [Point] with [Box] collision
+        Checks whether a point (objPos, e.g a shell position) is colliding with a box 
+        of centre [targetPos] and width [r]
+        e.g
+        |- - -| X = the point  (usually pos of terrain)
+        |  X  | | = length r   (usually tWidth)
+        |- - -|
+        */
+        boolean withinX = (targetPos.x -r/2.0 <= objPos.x+objVel.x) && (objPos.x+objVel.x < targetPos.x +r/2.0);
+        boolean withinY = (targetPos.y -r/2.0 <= objPos.y+objVel.y) && (objPos.y+objVel.y < targetPos.y +r/2.0);
+        if(withinX && withinY){
+            //If will be inside terrain NEXT frame, then will collide
+            return true;
+        }
+        else{
+            return false;
+        }
     }
     void calcShellTerrainCollision(shell cShell, int shellInd, map cMap){
         /*
@@ -91,7 +108,7 @@ class calculator{
                             boolean hasTerrain = cMap.tiles.get( int(shellTile.y +j) ).get( int(shellTile.x +i) ).terrainSet.size() > 0;
                             if(hasTerrain){ //If there exists terrain to be collided with
                                 terrain cTerrain = cMap.tiles.get( int(shellTile.y +j) ).get( int(shellTile.x +i) ).terrainSet.get(0);
-                                boolean hasCollided = cShell.checkTerrainCollision(cTerrain, cMap.tWidth);
+                                boolean hasCollided = checkSquareCollision(cShell.pos, cShell.vel, cTerrain.pos, cMap.tWidth);
                                 if(hasCollided && cTerrain.shellCol){
                                     if(cShell.nReflect > 0){    //Can reflect more times => Reflect
                                         cShell.deflectShell(cTerrain, cMap.tWidth);}
@@ -126,13 +143,10 @@ class calculator{
                             boolean hasTerrain = cMap.tiles.get( int(tankTile.y +j) ).get( int(tankTile.x +i) ).terrainSet.size() > 0;
                             if(hasTerrain){ //If there exists terrain to be collided with
                                 terrain cTerrain = cMap.tiles.get( int(tankTile.y +j) ).get( int(tankTile.x +i) ).terrainSet.get(0);
-                                boolean hasCollided = cTank.checkTerrainCollision(cTerrain, cMap.tWidth);
-                                println("Tank speed -> ",cTank.speed);
+                                boolean hasCollided = checkSquareCollision(cTank.pos, cTank.getVelocity(), cTerrain.pos, cMap.tWidth);
                                 if(hasCollided && cTerrain.tankCol){
                                     //If collides, stop all motion
-                                    println("Tank Collided");
-                                    cTank.mForward  = false;
-                                    cTank.mBackward = false;
+                                    cTank.speed = 0.0;
                                 }
                             }
                         }
@@ -231,11 +245,11 @@ class calculator{
             cEnviro.cMap.AI_tanks.get(0).layMine(cEnviro.cMap);
         }
         if(key == 'w'){
-            cEnviro.cMap.player_tanks.get(0).mForward = true;}
+            cEnviro.cMap.player_tanks.get(0).speed = cEnviro.cMap.player_tanks.get(0).maxSpeed;}
         if(key == 'a'){
             cEnviro.cMap.player_tanks.get(0).tCCW = true;}
         if(key == 's'){
-            cEnviro.cMap.player_tanks.get(0).mBackward = true;}
+            cEnviro.cMap.player_tanks.get(0).speed = cEnviro.cMap.player_tanks.get(0).minSpeed;}
         if(key == 'd'){
             cEnviro.cMap.player_tanks.get(0).tCW = true;}
         if(key == 'q'){
@@ -249,11 +263,11 @@ class calculator{
             //pass
         }
         if(key == 'w'){
-            cEnviro.cMap.player_tanks.get(0).mForward = false;}
+            cEnviro.cMap.player_tanks.get(0).speed = 0.0;}
         if(key == 'a'){
             cEnviro.cMap.player_tanks.get(0).tCCW = false;}
         if(key == 's'){
-            cEnviro.cMap.player_tanks.get(0).mBackward = false;}
+            cEnviro.cMap.player_tanks.get(0).speed = 0.0;}
         if(key == 'd'){
             cEnviro.cMap.player_tanks.get(0).tCW = false;}
     }
