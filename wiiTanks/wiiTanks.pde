@@ -5,6 +5,7 @@ e.g their position from the starting point, not the origin
 environment cEnviro;
 void setup(){
     fullScreen(P3D);
+    loadAll();
     cEnviro = new environment();
 }
 void draw(){

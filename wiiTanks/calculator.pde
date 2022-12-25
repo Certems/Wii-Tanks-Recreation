@@ -34,22 +34,22 @@ class calculator{
     }
     void calcAiTanks(map cMap){
         for(int i=cMap.AI_tanks.size()-1; i>=0; i--){
+            cMap.AI_tanks.get(i).calcRotation();
+            //...
             calcTankTerrainCollision(cMap.AI_tanks.get(i), i, cMap);
         }
         for(int i=cMap.AI_tanks.size()-1; i>=0; i--){
-            cMap.AI_tanks.get(i).calcRotation();
             cMap.AI_tanks.get(i).calcPos();
-            //...
         }
     }
     void calcPlayerTanks(map cMap){
         for(int i=cMap.player_tanks.size()-1; i>=0; i--){
+            cMap.player_tanks.get(i).calcRotation();
+            //...
             calcTankTerrainCollision(cMap.player_tanks.get(i), i, cMap);
         }
         for(int i=cMap.player_tanks.size()-1; i>=0; i--){
-            cMap.player_tanks.get(i).calcRotation();
             cMap.player_tanks.get(i).calcPos();
-            //...
         }
     }
     void calcShells(ArrayList<shell> shells){

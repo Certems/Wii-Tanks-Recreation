@@ -18,10 +18,9 @@ class tank{
     float turretRot;    //0-2*PI
 
     float sRel = 1.0;   //Scale factor for model size, relative to tWidth
-    float turretDisp = 0.3; //SF offset of turret (in height), from tank centre point
 
-    PVector turret;     //## IN FINAL VERSION, REPLACED WITH MODELS NOT COLOURS
-    PVector chassis;    //##
+    PShape turret;
+    PShape chassis;
 
     tank(PVector initPos, float initChassisRot, float initTurretRot){
         pos = initPos;
@@ -38,10 +37,12 @@ class tank{
         return new PVector(speed*cos(chassisRot), speed*sin(chassisRot), 0);
     }
     void calcRotation(){
-        if(tCCW){
-            chassisRot += rotSpeed;}
+        turretRot += PI/164.0;  //## FOR TESTING PURPOSES ##
         if(tCW){
+            chassisRot += rotSpeed;}
+        if(tCCW){
             chassisRot -= rotSpeed;}
+        chassisRot = chassisRot % (2.0*PI);
     }
     void fireShell(map cMap){
         /*
@@ -71,10 +72,10 @@ class red_tank extends tank{
 
     red_tank(PVector pos, float chassisRot, float turretRot){
         super(pos, chassisRot, turretRot);
-        turret  = new PVector(255,60,60);
-        chassis = new PVector(255,120,120);
+        turret  = tank_red_turret;
+        chassis = tank_red_chassis;
 
-        maxSpeed = 3.0;
+        maxSpeed = 2.0;
         minSpeed = -maxSpeed;
         rotSpeed = (2.0*PI/60.0)/2.0;
     }
@@ -98,10 +99,10 @@ class blue_tank extends tank{
 
     blue_tank(PVector pos, float chassisRot, float turretRot){
         super(pos, chassisRot, turretRot);
-        turret  = new PVector(60,60,255);
-        chassis = new PVector(255,120,120);
+        turret  = tank_blue_turret;
+        chassis = tank_blue_chassis;
 
-        maxSpeed = 3.0;
+        maxSpeed = 2.0;
         minSpeed = -maxSpeed;
         rotSpeed = (2.0*PI/60.0)/2.0;
     }
@@ -125,10 +126,10 @@ class gray_tank extends tank{
 
     gray_tank(PVector pos, float chassisRot, float turretRot){
         super(pos, chassisRot, turretRot);
-        turret  = new PVector(80,80,80);
-        chassis = new PVector(160,160,160);
+        turret  = tank_gray_turret;
+        chassis = tank_gray_chassis;
 
-        maxSpeed = 3.0;
+        maxSpeed = 2.0;
         minSpeed = -maxSpeed;
         rotSpeed = (2.0*PI/60.0)/2.0;
     }

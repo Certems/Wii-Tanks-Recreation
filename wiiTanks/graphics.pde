@@ -24,7 +24,7 @@ class graphics{
 
     void displayMap(){
         displayWoodBackground();
-        displayTiles(cEnviro.cMap.startPos, cEnviro.cMap.tWidth, cEnviro.cMap.tiles);
+        //displayTiles(cEnviro.cMap.startPos, cEnviro.cMap.tWidth, cEnviro.cMap.tiles); //Mainly a bug fixing tool now
         
         displayMines(cEnviro.cMap);
         displayShells(cEnviro.cMap);
@@ -35,6 +35,10 @@ class graphics{
     }
     void displayWoodBackground(){
         background(0);
+        pushStyle();
+        imageMode(CORNER);
+        image(background_wood, 0.0, 0.0, height, height);
+        popStyle();
     }
     void displayTiles(PVector startPos, float tWidth, ArrayList<ArrayList<tile>> tiles){
         fill(255);
@@ -78,9 +82,9 @@ class graphics{
         pushStyle();
         pushMatrix();
 
-        fill(255);
         translate(cMap.startPos.x +cShell.pos.x, cMap.startPos.y +cShell.pos.y, cMap.startPos.z +cShell.pos.z);
-        box(cMap.tWidth*0.3);
+        //box(cMap.tWidth*0.3);
+        shape(cShell.casing, 0.0, 0.0, cMap.tWidth*0.3, cMap.tWidth*0.3);
 
         popMatrix();
         popStyle();
@@ -92,25 +96,24 @@ class graphics{
         pushStyle();
 
         //Chassis
-        fill(cTank.chassis.x, cTank.chassis.y, cTank.chassis.z);
         pushMatrix();
         translate(cMap.startPos.x +cTank.pos.x, cMap.startPos.y +cTank.pos.y, cMap.startPos.z +cTank.pos.z);
         rotate(cTank.chassisRot);
-        box(cMap.tWidth*cTank.sRel, cMap.tWidth*cTank.sRel, cMap.tWidth*cTank.sRel*0.5);
+        //box(cMap.tWidth*cTank.sRel, cMap.tWidth*cTank.sRel, cMap.tWidth*cTank.sRel*0.5);
+        shape(cTank.chassis, 0.0, 0.0);
         popMatrix();
 
         //Turret
-        fill(cTank.turret.x, cTank.turret.y, cTank.turret.z);
         pushMatrix();
-        translate(cMap.startPos.x +cTank.pos.x, cMap.startPos.y +cTank.pos.y, cMap.startPos.z +cTank.pos.z +cMap.tWidth*cTank.turretDisp);
+        translate(cMap.startPos.x +cTank.pos.x, cMap.startPos.y +cTank.pos.y, cMap.startPos.z +cTank.pos.z);
         rotate(cTank.turretRot);
-        box(cMap.tWidth*cTank.sRel*0.5);
+        //box(cMap.tWidth*cTank.sRel*0.5);
+        shape(cTank.turret, 0.0, 0.0);
         popMatrix();
 
         popStyle();
     }
     void displayTerrain(PVector startPos, float tWidth, ArrayList<ArrayList<tile>> tiles){
-        fill(255,100,100);
         for(int j=0; j<tiles.size(); j++){
             for(int i=0; i<tiles.get(j).size(); i++){
                 for(int z=0; z<tiles.get(j).get(i).terrainSet.size(); z++){
@@ -118,11 +121,11 @@ class graphics{
                     float tHeight = 0;
                     for(int p=0; p<=z; p++){
                         tHeight += tWidth*tiles.get(j).get(i).terrainSet.get(p).hRatio;}
-                    //##########################################################
-                    //## HAVE IT DRAW THE REMEBERED MODEL INSTEAD OF JUST RED ##
-                    //##########################################################
                     translate(startPos.x +i*tWidth, startPos.y +j*tWidth, startPos.z +tHeight);
                     box(tWidth, tWidth, tWidth*tiles.get(j).get(i).terrainSet.get(z).hRatio);
+                    //## NEED TO ADD BIT TO SQUISH OR STRETCH DIFFERENT HEIGHT TERRAIN ##
+                    //## BUGGED BECAUSE TEXTURE IS AN IMAGE, NOT A FLAT COLOUR ##
+                    //shape(tiles.get(j).get(i).terrainSet.get(z).geometry, 0.0, 0.0, tWidth, tWidth);
                     popMatrix();
                 }
             }

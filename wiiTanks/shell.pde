@@ -5,7 +5,7 @@ class shell{
     If they collide with a tank, both entities are destroyed
     If they collide with a wall, they are deflected BUT will be destroyed after n bounces
     */
-    PVector casing = new PVector(255,255,255);  //## MAKE A MODEL IN FUTURE, NOT JUST A COLOUR ##  
+    PShape casing;  
 
     int nReflect;   //Number of reflections allowed
 
@@ -21,6 +21,8 @@ class shell{
         pos = initPos;
         vel = initVel;
         acc = initAcc;
+
+        casing = shell_normal;
     }
 
     void calcDynamics(){

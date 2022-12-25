@@ -12,6 +12,7 @@ class terrain{
     float hRatio;   //Height ratio, sets height as a ratio of width
 
     PVector pos;
+    PShape geometry;
 
     boolean shellCol;  //e.g shells off walls
     boolean tankCol;   //e.g tanks and holes
@@ -32,7 +33,7 @@ class crate extends terrain{
     crate(PVector pos){
         super(pos);
         hRatio = 1.0;
-        //## HAVE MODEL HERE ##
+        geometry = terrain_wood;
         shellCol = true;
         tankCol  = true;
     }
@@ -45,7 +46,7 @@ class cork extends terrain{
     cork(PVector pos){
         super(pos);
         hRatio = 1.5;
-        //## HAVE MODEL HERE ##
+        geometry = terrain_cork;
         shellCol = true;
         tankCol  = true;
     }
