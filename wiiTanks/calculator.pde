@@ -126,4 +126,20 @@ class calculator{
             cStage.ai_tanks.get(i).calcDynamics();
         }
     }
+
+
+    boolean checkBoxBoxCollision(PVector p1, PVector d1, PVector p2, PVector d2){
+        /*
+        Checks if 2 boxes, specified each by a centre point and dimension, are 
+        colliding with eachother
+        p = pos
+        d = dimension
+        */
+        boolean withinX = ; //## CENTRE DIFFERENCE < DIM1X/2 + DIM2X/2 => WITHIN EACH OTHER X WISE
+        boolean withinY = ; //## '' ''
+        if(withinX && withinY){
+            return true;}
+        else{
+            return false;}
+    }
 }
