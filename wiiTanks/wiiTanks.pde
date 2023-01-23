@@ -1,7 +1,7 @@
 manager cManager;
 
 void setup(){
-    fullScreen();
+    fullScreen(P3D);
     cManager = new manager();
 }
 void draw(){

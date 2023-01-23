@@ -26,6 +26,9 @@ class manager{
         */
         gameState.add(0);
         loadStagePreset(0);
+        cStage.player_tanks.add(new tank_red(   new PVector(50,50,30), new PVector(0,0,0), new PVector(0,0,0)));
+        cStage.ai_tanks.add(new tank_gray(      new PVector(250,50,30), new PVector(0,0,0), new PVector(0,0,0)));
+        cStage.ai_tanks.add(new tank_gray(      new PVector(250,280,30), new PVector(0,0,0), new PVector(0,0,0)));
     }
 
 
@@ -43,7 +46,7 @@ class manager{
 
     void loadStagePreset(int nPreset){
         if(nPreset == 0){
-            cStage = createStagePreset(preset0, new PVector(8,8));}
+            cStage = createStagePreset(preset0, new PVector(12,12));}
         //...
     }
     stage createStagePreset(IntList cList, PVector dimTiles){
@@ -52,13 +55,20 @@ class manager{
         for(int j=0; j<dimTiles.y; j++){
             tiles.add( new ArrayList<tile>() );
             for(int i=0; i<dimTiles.x; i++){
-                tile newTile = new tile();
-                if(preset0.get(i +j*int(dimTiles.x)) == 0){
-                    //Add unique tille volume / terrain stuff here
-                    //pass
-                }
+                int tileType = preset0.get(i +j*int(dimTiles.x));
+                if(tileType == 0){
+                    empty newEmpty = new empty();
+                    tiles.get(j).add(newEmpty);}
+                if(tileType == 1){
+                    crate newCrate = new crate();
+                    tiles.get(j).add(newCrate);}
+                if(tileType == 2){
+                    cork newCork = new cork();
+                    tiles.get(j).add(newCork);}
+                if(tileType == 3){
+                    hole newHole = new hole();
+                    tiles.get(j).add(newHole);}
                 //...
-                tiles.get(j).add(newTile);
             }
         }
         nStage.tiles = tiles;
@@ -66,14 +76,25 @@ class manager{
     }
 }
 
+/*
+For presets;
+0 = empty
+1 = crate
+2 = cork
+3 = hole
+*/
 IntList preset0 = new IntList(
-    0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+    1, 0, 0, 0, 1, 1, 0, 0, 2, 0, 0, 1,
+    1, 0, 0, 0, 0, 1, 0, 0, 2, 0, 0, 1,
+    1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1,
+    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+    1, 0, 0, 0, 0, 0, 0, 3, 3, 3, 0, 1,
+    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
 );
 //...

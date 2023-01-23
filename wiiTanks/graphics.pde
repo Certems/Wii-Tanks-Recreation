@@ -16,7 +16,7 @@ class graphics{
     }
 
 
-    void displayInMatch(stage cStage){
+    void displayInMatch(stage cStage){        
         displayBackground();
         displayTanks(cStage);
         displayTiles(cStage);
@@ -47,14 +47,21 @@ class graphics{
         fill(255);
         stroke(0);
         strokeWeight(1);
-        pushMatrix();
         for(int j=0; j<cStage.tiles.size(); j++){
             for(int i=0; i<cStage.tiles.get(j).size(); i++){
+                pushMatrix();
                 translate(i*cStage.tWidth, j*cStage.tWidth);
+                fill(255);
+                if(cStage.tiles.get(j).get(i).name == "tile_crate"){
+                    fill(255,0,0);}
+                if(cStage.tiles.get(j).get(i).name == "tile_cork"){
+                    fill(0,255,0);}
+                if(cStage.tiles.get(j).get(i).name == "tile_hole"){
+                    fill(0,0,255);}
                 box(cStage.tWidth);
+                popMatrix();
             }
         }
-        popMatrix();
 
         popMatrix();
         popStyle();
@@ -65,8 +72,36 @@ class graphics{
 
         translate(cStage.startPos.x, cStage.startPos.y, cStage.startPos.z);
 
+        fill(0,0,0);
+        translate(cTank.pos.x, cTank.pos.y, cTank.pos.z);
+        box(cTank.dim.x*cStage.tWidth);
+        println("HERE -> ",cTank.pos);
+
+        popMatrix();
+        popStyle();
+    }
+    void displayShell(shell cShell, stage cStage){
+        pushStyle();
+        pushMatrix();
+
+        translate(cStage.startPos.x, cStage.startPos.y, cStage.startPos.z);
+
         fill(255,0,0);
-        rect(cTank.pos.x, cTank.pos.y, cTank.dim.x, cTank.dim.y);
+        translate(cShell.pos.x, cShell.pos.y, cShell.pos.z);
+        sphere(cShell.dim.x*cStage.tWidth);
+
+        popMatrix();
+        popStyle();
+    }
+    void displayMine(mine cMine, stage cStage){
+        pushStyle();
+        pushMatrix();
+
+        translate(cStage.startPos.x, cStage.startPos.y, cStage.startPos.z);
+
+        fill(255,0,0);
+        translate(cMine.pos.x, cMine.pos.y, cMine.pos.z);
+        box(cMine.dim.x*cStage.tWidth);
 
         popMatrix();
         popStyle();
