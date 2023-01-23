@@ -39,8 +39,23 @@ class manager{
     }
     void calcGameState(){
         for(int i=0; i<gameState.size(); i++){
-            cCalculator.calcState( gameState.get(i) );
-        }
+            cCalculator.calcState( gameState.get(i) );}
+    }
+    void calcControls_keyPressed(){
+        for(int i=0; i<gameState.size(); i++){
+            cCalculator.calcKeyPressed( gameState.get(i), cStage );}
+    }
+    void calcControls_keyReleased(){
+        for(int i=0; i<gameState.size(); i++){
+            cCalculator.calcKeyReleased( gameState.get(i), cStage );}
+    }
+    void calcControls_mousePressed(){
+        for(int i=0; i<gameState.size(); i++){
+            cCalculator.calcMousePressed( gameState.get(i),cStage );}
+    }
+    void calcControls_mouseReleased(){
+        for(int i=0; i<gameState.size(); i++){
+            cCalculator.calcMouseReleased( gameState.get(i),cStage );}
     }
 
 

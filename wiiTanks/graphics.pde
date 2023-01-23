@@ -18,11 +18,18 @@ class graphics{
 
     void displayInMatch(stage cStage){        
         displayBackground();
+        displayMines(cStage);
         displayTanks(cStage);
+        displayShells(cStage);
         displayTiles(cStage);
     }
     void displayBackground(){
         background(30,30,60);
+    }
+    void displayMines(stage cStage){
+        for(int i=0; i<cStage.mines.size(); i++){
+            displayMine(cStage.mines.get(i), cStage);
+        }
     }
     void displayTanks(stage cStage){
         displayAiTanks(cStage);
@@ -36,6 +43,11 @@ class graphics{
     void displayPlayerTanks(stage cStage){
         for(int i=0; i<cStage.player_tanks.size(); i++){
             displayTank(cStage.player_tanks.get(i), cStage);
+        }
+    }
+    void displayShells(stage cStage){
+        for(int i=0; i<cStage.shells.size(); i++){
+            displayShell(cStage.shells.get(i), cStage);
         }
     }
     void displayTiles(stage cStage){
@@ -71,11 +83,34 @@ class graphics{
         pushMatrix();
 
         translate(cStage.startPos.x, cStage.startPos.y, cStage.startPos.z);
-
-        fill(0,0,0);
         translate(cTank.pos.x, cTank.pos.y, cTank.pos.z);
+
+        //Chassis
+        pushMatrix();
+        fill(50,50,50);
+        rotateZ(cTank.cChassis.rotation);
         box(cTank.dim.x*cStage.tWidth);
-        println("HERE -> ",cTank.pos);
+
+        stroke(0,255,0);       //
+        strokeWeight(5);       // BUGFIXING DIR LINES
+        line(0,0,0,   30,0,0); //
+
+        popMatrix();
+
+        //Turret
+        pushMatrix();
+        fill(70,70,70);
+        stroke(255,0,0);
+        strokeWeight(4);
+        translate(0,0, cTank.thRatio*cStage.tWidth);
+        rotateZ(cTank.cTurret.rotation);
+        box(cTank.dim.x*cStage.tWidth*0.5);
+
+        stroke(255,0,0);       //
+        strokeWeight(5);       // BUGFIXING DIR LINES
+        line(0,0,0,   20,0,0); //
+        
+        popMatrix();    
 
         popMatrix();
         popStyle();

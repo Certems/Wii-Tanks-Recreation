@@ -1,21 +1,143 @@
 class tank extends entity{
+    /*
+    Note; Max straight line speed = engineThrust/frictionCoeff => for eThrust =2.4, fCoeff =0.8, maxSpeed ~3 pxls fr^-1
+    */
     int ID = floor(random(10000000, 99999999)); //Unique identifier for each tank -> bullets have associated IDs for tanks
 
-    float rChassis = 0.0;   //Rotation of chassis
-    float rTurret  = 0.0;   //Rotation of turret
+    boolean accUp  = false;
+    boolean accDwn = false;
+    boolean tCW  = false;
+    boolean tCCW = false;
+
+    chassis cChassis = new chassis();
+    turret cTurret   = new turret();
+    float thRatio = 0.5;   //Tank height ratio, how far from the floor to the top of chassis, in terms of tWidths -> find experimentally
+
+    float frictionCoeff = 0.7;
+    float engineThrust = 1.2;   //How strong engine is
+    float rSpeed = 1.0*PI/64.0; //Rotation speed of chassis
 
     tank(PVector pos, PVector vel, PVector acc){
         super(pos, vel, acc);
         dim = new PVector(0.8, 0.8);    //Relative to tWidth, bounding box size
     }
+
+    void calcDynamics(){
+        /*
+        Calculates pos,vel,acc and rotational changes
+        */
+        calcAcc();
+        calcVel();
+        calcPos();
+        calcChassisRot();
+        calcTurretRot();
+    }
+    void fireShell(stage cStage){
+        /*
+        Fires a shell from the turret of this tank
+        */
+        PVector turretDir = cTurret.getDir();
+        float offset = 0.1*dim.x*cStage.tWidth;
+        float fireSpeed = 1.0;
+        shell newShell = new shell( new PVector(pos.x +offset*turretDir.x, pos.y +offset*turretDir.y, pos.z), new PVector(fireSpeed*turretDir.x, fireSpeed*turretDir.y, 0), new PVector(0,0,0) );
+        cStage.shells.add(newShell);
+    }
+    void layMine(stage cStage){
+        /*
+        Lays a mine beneath this tank
+        Whitelists this tank inside the placed mine
+        */
+        mine newMine = new mine( new PVector(pos.x,pos.y,pos.z), new PVector(0,0,0), new PVector(0,0,0) );
+        cStage.mines.add(newMine);
+    }
+    void calcAcc(){
+        PVector force = new PVector(0,0,0);
+
+        //Friction
+        float velMag = vecMag(vel);
+        PVector velDir = vecUnit(vel);
+        force.x -= frictionCoeff*velMag*velDir.x;
+        force.y -= frictionCoeff*velMag*velDir.y;
+
+        //Thrust
+        if(accUp){
+            //Accelerating forward
+            PVector dir = cChassis.getDir();
+            force.x += engineThrust*dir.x;
+            force.y += engineThrust*dir.y;
+        }
+        if(accDwn){
+            //Accelerating forward
+            PVector dir = cChassis.getDir();
+            force.x -= engineThrust*dir.x;
+            force.y -= engineThrust*dir.y;
+        }
+
+        //Acc
+        acc.x = force.x/1.0;
+        acc.y = force.y/1.0;
+    }
+    void calcVel(){
+        vel.x += acc.x;
+        vel.y += acc.y;
+    }
+    void calcPos(){
+        pos.x += vel.x;
+        pos.y += vel.y;
+    }
+    void calcChassisRot(){
+        if(tCCW){
+            cChassis.rotation -= rSpeed;}
+        if(tCW){
+            cChassis.rotation += rSpeed;}
+        //Keep within correct bounds (0,2PI)
+        cChassis.rotation %= 2.0*PI;
+        if(cChassis.rotation < 0){
+            cChassis.rotation += 2.0*PI;}
+    }
+    void calcTurretRot(){
+        /*
+        Turrets have instantaneous turn speed
+        */
+        //pass
+    }
 }
+class chassis{
+    float rotation = 0.0;
+
+    chassis(){
+        //pass
+    }
+
+    PVector getDir(){
+        /*
+        Returns unit vector direction that this is pointing at
+        */
+        return new PVector(cos(rotation), sin(rotation));
+    }
+}
+class turret{
+    float rotation = 0.0;
+
+    turret(){
+        //pass
+    }
+
+    PVector getDir(){
+        /*
+        Returns unit vector direction that this is pointing at
+        */
+        return new PVector(cos(rotation), sin(rotation));
+    }
+}
+
 
 class tank_red extends tank{
     //pass
 
     tank_red(PVector pos, PVector vel, PVector acc){
         super(pos, vel, acc);
-        dim = new PVector(0.8, 0.8);    //Relative to tWidth, bounding box size
+        dim = new PVector(0.8, 0.8);    //Relative to tWidth, bounding box size 
     }
 }
 class tank_gray extends tank{

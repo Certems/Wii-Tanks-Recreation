@@ -10,14 +10,14 @@ void draw(){
 }
 
 void keyPressed(){
-    //pass
+    cManager.calcControls_keyPressed();
 }
 void keyReleased(){
-    //pass
+    cManager.calcControls_keyReleased();
 }
 void mousePressed(){
-    //pass
+    cManager.calcControls_mousePressed();
 }
 void mouseReleased(){
-    //pass
+    cManager.calcControls_mouseReleased();
 }
