@@ -51,6 +51,16 @@ class calculator{
                     println("--Laying Mine--");
                     cStage.player_tanks.get(0).layMine(cStage);}
             }
+            //## TEMPORARY FOR BUG FIXING ##
+            if(key == '1'){
+                if(cStage.player_tanks.size()>0){
+                    cStage.player_tanks.get(0).cTurret.rotation -= PI/16.0;}
+            }
+            if(key == '2'){
+                if(cStage.player_tanks.size()>0){
+                    cStage.player_tanks.get(0).cTurret.rotation += PI/16.0;}
+            }
+            //## TEMPORARY FOR BUG FIXING ##
 
             //...
             //-----
@@ -230,7 +240,7 @@ class calculator{
             cEntity.pos.z -= nVel.z;
             boolean stillColliding = checkBoxBoxCollision(cEntity.pos, cEntity.dim, p, d, cStage);
             if(!stillColliding){
-                cEntity.vel = new PVector(0,0,0);
+                //cEntity.vel = new PVector(0,0,0);
                 break;}
             countermeasure++;
         }
@@ -246,13 +256,46 @@ class calculator{
         checkCollision_mineTank(cStage);
         checkCollision_mineShell(cStage);
     }
-    void deflectShellOffWall(shell cShell, PVector p, PVector d, stage cStage){
+    void deflectShellOffWall(shell cShell, PVector bPos, PVector bDim, stage cStage){
         /*
         Move out of wall
         Find which wall the shell will collide with
         Deflect its velocity accordingly
+
+        p = shell pos
+
+        p'|-----------|
+          | p         |
+          |~~ ~~X     |
+          | b  a      |
+          |___________|
+
+          Hence;
+          a = distance from box centre to point
+          b = distance from point to box L/R edge
+          c = scale factor to take point to L/R edge
+
+          If p' has a y component > centre +dimY/2, then would hit the T/B
+          If "" ""                < "" ""         , then would hit the L/R
         */
-        //pass
+        PVector velNormal = vecUnit(cShell.vel);
+        float a = abs(cShell.pos.x -bPos.x);
+        float b = bDim.x/2.0 -a;
+        float c = b*velNormal.x;
+        float pPrimeY = abs(cShell.pos.y -c*velNormal.y);
+        //#################################################
+        //## IS GETTING THE SIDE WRONG AT CERTAIN ANGLES ##
+        //#################################################
+        if(pPrimeY > bPos.y +bDim.y/2.0){
+            //Top / Bottom collision => reverse Y vel
+            moveEntityOutBoxCollision(cShell, bPos, bDim, cStage);
+            cShell.vel.y *= -1;
+        }
+        else{
+            //Left / Right collision => reverse X vel
+            moveEntityOutBoxCollision(cShell, bPos, bDim, cStage);
+            cShell.vel.x *= -1;
+        }
     }
     void checkCollision_tankWall(stage cStage){
         /*
@@ -281,6 +324,7 @@ class calculator{
                 if(isColliding){
                     //4
                     moveEntityOutBoxCollision(cStage.player_tanks.get(i), wallPos, wallDim, cStage);
+                    cStage.player_tanks.get(i).vel = new PVector(0,0,0);
                 }
             }
         }
@@ -299,6 +343,7 @@ class calculator{
                 if(isColliding){
                     //4
                     moveEntityOutBoxCollision(cStage.ai_tanks.get(i), wallPos, wallDim, cStage);
+                    cStage.ai_tanks.get(i).vel = new PVector(0,0,0);
                 }
             }
         }
@@ -309,13 +354,15 @@ class calculator{
                 if(i != p){    
                     boolean isColliding = checkBoxBoxCollision(cStage.player_tanks.get(i).pos, cStage.player_tanks.get(i).dim, cStage.player_tanks.get(p).pos, cStage.player_tanks.get(p).dim, cStage);
                     if(isColliding){
-                        moveEntityOutBoxCollision(cStage.player_tanks.get(i), cStage.player_tanks.get(p).pos, cStage.player_tanks.get(p).dim, cStage);}
+                        moveEntityOutBoxCollision(cStage.player_tanks.get(i), cStage.player_tanks.get(p).pos, cStage.player_tanks.get(p).dim, cStage);
+                        cStage.player_tanks.get(i).vel = new PVector(0,0,0);}
                 }
             }
             for(int p=0; p<cStage.ai_tanks.size(); p++){   
                 boolean isColliding = checkBoxBoxCollision(cStage.player_tanks.get(i).pos, cStage.player_tanks.get(i).dim, cStage.ai_tanks.get(p).pos, cStage.ai_tanks.get(p).dim, cStage);
                 if(isColliding){
-                    moveEntityOutBoxCollision(cStage.player_tanks.get(i), cStage.ai_tanks.get(p).pos, cStage.ai_tanks.get(p).dim, cStage);}
+                    moveEntityOutBoxCollision(cStage.player_tanks.get(i), cStage.ai_tanks.get(p).pos, cStage.ai_tanks.get(p).dim, cStage);
+                    cStage.player_tanks.get(i).vel = new PVector(0,0,0);}
             }
         }
 
@@ -326,7 +373,8 @@ class calculator{
                 if(i != p){
                     boolean isColliding = checkBoxBoxCollision(cStage.ai_tanks.get(i).pos, cStage.ai_tanks.get(i).dim, cStage.ai_tanks.get(p).pos, cStage.ai_tanks.get(p).dim, cStage);
                     if(isColliding){
-                        moveEntityOutBoxCollision(cStage.ai_tanks.get(i), cStage.ai_tanks.get(p).pos, cStage.ai_tanks.get(p).dim, cStage);}
+                        moveEntityOutBoxCollision(cStage.ai_tanks.get(i), cStage.ai_tanks.get(p).pos, cStage.ai_tanks.get(p).dim, cStage);
+                        cStage.ai_tanks.get(i).vel = new PVector(0,0,0);}
                 }
             }
         }
@@ -422,10 +470,10 @@ class calculator{
                     //####################################
                     //## CHANGE TO CIRCLE-BOX COLLISION ##
                     //####################################
-                    boolean isColliding = checkBoxBoxCollision(cStage.mines.get(i).pos, new PVector(cStage.mines.get(i).activeRad, cStage.mines.get(i).activeRad, 0), cStage.player_tanks.get(i).pos, cStage.player_tanks.get(i).dim, cStage);
+                    boolean isColliding = checkBoxBoxCollision(cStage.mines.get(i).pos, new PVector(2.0*cStage.mines.get(i).activeRad, 2.0*cStage.mines.get(i).activeRad, 0), cStage.player_tanks.get(j).pos, cStage.player_tanks.get(j).dim, cStage);
                     if(isColliding){
                         //If they collide, activate mine and destroy both
-                        explodeMine(cStage.mines.get(i), cStage);
+                        explodeMine(cStage.mines.get(i), cStage, i);
                         alreadyExploded = true;
                         break;
                     }
@@ -448,10 +496,10 @@ class calculator{
                         //####################################
                         //## CHANGE TO CIRCLE-BOX COLLISION ##
                         //####################################
-                        boolean isColliding = checkBoxBoxCollision(cStage.mines.get(i).pos, new PVector(cStage.mines.get(i).activeRad, cStage.mines.get(i).activeRad, 0), cStage.ai_tanks.get(i).pos, cStage.ai_tanks.get(i).dim, cStage);
+                        boolean isColliding = checkBoxBoxCollision(cStage.mines.get(i).pos, new PVector(cStage.mines.get(i).activeRad, cStage.mines.get(i).activeRad, 0), cStage.ai_tanks.get(j).pos, cStage.ai_tanks.get(j).dim, cStage);
                         if(isColliding){
                             //If they collide, activate mine and destroy both
-                            explodeMine(cStage.mines.get(i), cStage);
+                            explodeMine(cStage.mines.get(i), cStage, i);
                             break;
                         }
                     }
@@ -465,10 +513,10 @@ class calculator{
                 //####################################
                 //## CHANGE TO CIRCLE-BOX COLLISION ##
                 //####################################
-                boolean isColliding = checkBoxBoxCollision(cStage.mines.get(i).pos, cStage.mines.get(i).dim, cStage.shells.get(i).pos, cStage.shells.get(i).dim, cStage);
+                boolean isColliding = checkBoxBoxCollision(cStage.mines.get(i).pos, cStage.mines.get(i).dim, cStage.shells.get(j).pos, cStage.shells.get(j).dim, cStage);
                 if(isColliding){
                     //If they collide, activate mine and destroy both
-                    explodeMine(cStage.mines.get(i), cStage);
+                    explodeMine(cStage.mines.get(i), cStage, i);
                     break;
                 }
             }
@@ -476,11 +524,15 @@ class calculator{
     }
 
 
-    void explodeMine(mine cMine, stage cStage){
+    void explodeMine(mine cMine, stage cStage, int n){
+        /*
+        Calculates what is effected by this mine exploding
+        (the nth mine in the list), then destroys itself
+        */
         explodeMine_shells(cMine, cStage);
         explodeMine_tanks(cMine, cStage);
         explodeMine_walls(cMine, cStage);
-        explodeMine_mines(cMine, cStage);
+        cStage.mines.remove(n);
     }
     void explodeMine_shells(mine cMine, stage cStage){
         for(int i=cStage.shells.size()-1; i>=0; i--){
@@ -530,17 +582,6 @@ class calculator{
         for(int i=0; i<marked.size(); i++){
             cStage.tiles.get(int(marked.get(i).y)).remove( int(marked.get(i).x) );
             cStage.tiles.get(int(marked.get(i).y)).add( int(marked.get(i).x), new empty() );
-        }
-    }
-    void explodeMine_mines(mine cMine, stage cStage){
-        /*
-        This current mine is included in the search => clears itself
-        */
-        for(int i=cStage.mines.size()-1; i>=0; i--){
-            float dist = vecDist(cMine.pos, cStage.mines.get(i).pos);
-            if(dist < cMine.explodeRad*cStage.tWidth){
-                cStage.mines.remove(i);
-            }
         }
     }
     int checkTankShells(tank cTank, stage cStage){

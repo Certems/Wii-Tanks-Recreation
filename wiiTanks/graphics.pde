@@ -138,6 +138,14 @@ class graphics{
         translate(cMine.pos.x, cMine.pos.y, cMine.pos.z);
         box(cMine.dim.x*cStage.tWidth);
 
+        translate(0,0,0.5*cStage.tWidth);
+        noFill();
+        strokeWeight(3);
+        stroke(200,0,0,125);
+        ellipse(0,0, 2.0*cMine.explodeRad*cStage.tWidth, 2.0*cMine.explodeRad*cStage.tWidth);
+        stroke(0,200,0,125);
+        ellipse(0,0, 2.0*cMine.activeRad*cStage.tWidth, 2.0*cMine.activeRad*cStage.tWidth);
+
         popMatrix();
         popStyle();
     }
