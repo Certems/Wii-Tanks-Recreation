@@ -43,7 +43,7 @@ class calculator{
                 //P1 fire shell
                 if(cStage.player_tanks.size()>0){
                     println("--Firing Shell--");
-                    cStage.player_tanks.get(0).fireShell(cStage);}
+                    cStage.player_tanks.get(0).tryFireShell(cStage, this);}
             }
             if(key == 'e'){
                 //P1 lay mine
@@ -107,6 +107,7 @@ class calculator{
 
     void calcInMatch(stage cStage){
         calcTanks(cStage);
+        calcShells(cStage);
         calcCollisionCases(cStage);
     }
     void calcTanks(stage cStage){
@@ -127,17 +128,29 @@ class calculator{
             cStage.ai_tanks.get(i).calcDynamics();
         }
     }
+    void calcShells(stage cStage){
+        for(int i=0; i<cStage.shells.size(); i++){
+            cStage.shells.get(i).calcDynamics();
+        }
+    }
 
 
-    boolean checkBoxBoxCollision(PVector p1, PVector d1, PVector p2, PVector d2){
+    boolean checkBoxBoxCollision(PVector p1, PVector d1, PVector p2, PVector d2, stage cStage){
         /*
         Checks if 2 boxes, specified each by a centre point and dimension, are 
         colliding with eachother
+        NOTE; dimensions (d1, d2) here are in pixels e.g have already been specified in terms of number of tWidths when parsed in
         p = pos
         d = dimension
+
+        ########
+        #####################################################################
+        ## NEED TO CHANGE TO ROTATING RECTANGLE COLLISION, NOT JUST STATIC ##
+        #####################################################################
+        ########
         */
-        boolean withinX = abs(p1.x-p2.x) < (d1.x/2.0) + (d2.x/2.0);
-        boolean withinY = abs(p1.y-p2.y) < (d1.y/2.0) + (d2.y/2.0);
+        boolean withinX = abs(p1.x-p2.x) < (cStage.tWidth*d1.x/2.0) + (cStage.tWidth*d2.x/2.0);
+        boolean withinY = abs(p1.y-p2.y) < (cStage.tWidth*d1.y/2.0) + (cStage.tWidth*d2.y/2.0);
         if(withinX && withinY){
             return true;}
         else{
@@ -201,11 +214,11 @@ class calculator{
         }
         return marked;
     }
-    void moveEntityOutBoxCollision(entity cEntity, PVector p, PVector d){
+    void moveEntityOutBoxCollision(entity cEntity, PVector p, PVector d, stage cStage){
         /*
         Moves an entity backwards out of a box
         Centre = p
-        Dim = d
+        Dim = d (in terms of # tWidths NOT pixels)
         Then sets velocity of entity to 0
         */
         float scale = 0.20;         //**Resolution of backwards moving (relative to frames)
@@ -215,7 +228,7 @@ class calculator{
             cEntity.pos.x -= nVel.x;
             cEntity.pos.y -= nVel.y;
             cEntity.pos.z -= nVel.z;
-            boolean stillColliding = checkBoxBoxCollision(cEntity.pos, cEntity.dim, p, d);
+            boolean stillColliding = checkBoxBoxCollision(cEntity.pos, cEntity.dim, p, d, cStage);
             if(!stillColliding){
                 cEntity.vel = new PVector(0,0,0);
                 break;}
@@ -230,9 +243,16 @@ class calculator{
         checkCollision_tankTank(cStage);
         checkCollision_shellWall(cStage);
         checkCollision_shellTank(cStage);
-        checkCollision_mineWall(cStage);
         checkCollision_mineTank(cStage);
         checkCollision_mineShell(cStage);
+    }
+    void deflectShellOffWall(shell cShell, PVector p, PVector d, stage cStage){
+        /*
+        Move out of wall
+        Find which wall the shell will collide with
+        Deflect its velocity accordingly
+        */
+        //pass
     }
     void checkCollision_tankWall(stage cStage){
         /*
@@ -256,11 +276,11 @@ class calculator{
             //3
             for(int j=0; j<possibleWalls.size(); j++){
                 PVector wallPos = new PVector(possibleWalls.get(j).x*cStage.tWidth, possibleWalls.get(j).y*cStage.tWidth);
-                PVector wallDim = new PVector(cStage.tWidth, cStage.tWidth);
-                boolean isColliding = checkBoxBoxCollision(cStage.player_tanks.get(i).pos, cStage.player_tanks.get(i).dim, wallPos, wallDim);
+                PVector wallDim = new PVector(1.0, 1.0);
+                boolean isColliding = checkBoxBoxCollision(cStage.player_tanks.get(i).pos, cStage.player_tanks.get(i).dim, wallPos, wallDim, cStage);
                 if(isColliding){
                     //4
-                    moveEntityOutBoxCollision(cStage.player_tanks.get(i), wallPos, wallDim);
+                    moveEntityOutBoxCollision(cStage.player_tanks.get(i), wallPos, wallDim, cStage);
                 }
             }
         }
@@ -275,30 +295,265 @@ class calculator{
             for(int j=0; j<possibleWalls.size(); j++){
                 PVector wallPos = new PVector(possibleWalls.get(j).x*cStage.tWidth, possibleWalls.get(j).y*cStage.tWidth);
                 PVector wallDim = new PVector(cStage.tWidth, cStage.tWidth);
-                boolean isColliding = checkBoxBoxCollision(cStage.ai_tanks.get(i).pos, cStage.ai_tanks.get(i).dim, wallPos, wallDim);
+                boolean isColliding = checkBoxBoxCollision(cStage.ai_tanks.get(i).pos, cStage.ai_tanks.get(i).dim, wallPos, wallDim, cStage);
                 if(isColliding){
                     //4
-                    moveEntityOutBoxCollision(cStage.ai_tanks.get(i), wallPos, wallDim);
+                    moveEntityOutBoxCollision(cStage.ai_tanks.get(i), wallPos, wallDim, cStage);
                 }
             }
         }
     }
     void checkCollision_tankTank(stage cStage){
-        //pass
+        for(int i=0; i<cStage.player_tanks.size(); i++){
+            for(int p=0; p<cStage.player_tanks.size(); p++){
+                if(i != p){    
+                    boolean isColliding = checkBoxBoxCollision(cStage.player_tanks.get(i).pos, cStage.player_tanks.get(i).dim, cStage.player_tanks.get(p).pos, cStage.player_tanks.get(p).dim, cStage);
+                    if(isColliding){
+                        moveEntityOutBoxCollision(cStage.player_tanks.get(i), cStage.player_tanks.get(p).pos, cStage.player_tanks.get(p).dim, cStage);}
+                }
+            }
+            for(int p=0; p<cStage.ai_tanks.size(); p++){   
+                boolean isColliding = checkBoxBoxCollision(cStage.player_tanks.get(i).pos, cStage.player_tanks.get(i).dim, cStage.ai_tanks.get(p).pos, cStage.ai_tanks.get(p).dim, cStage);
+                if(isColliding){
+                    moveEntityOutBoxCollision(cStage.player_tanks.get(i), cStage.ai_tanks.get(p).pos, cStage.ai_tanks.get(p).dim, cStage);}
+            }
+        }
+
+        // AI VERSION --> COPIED OVER BUT JUST FOR OTHER AI (ai vs player check already done)
+        //----------------------------
+        for(int i=0; i<cStage.ai_tanks.size(); i++){
+            for(int p=0; p<cStage.ai_tanks.size(); p++){
+                if(i != p){
+                    boolean isColliding = checkBoxBoxCollision(cStage.ai_tanks.get(i).pos, cStage.ai_tanks.get(i).dim, cStage.ai_tanks.get(p).pos, cStage.ai_tanks.get(p).dim, cStage);
+                    if(isColliding){
+                        moveEntityOutBoxCollision(cStage.ai_tanks.get(i), cStage.ai_tanks.get(p).pos, cStage.ai_tanks.get(p).dim, cStage);}
+                }
+            }
+        }
     }
     void checkCollision_shellWall(stage cStage){
-        //pass
+        /*
+        Checks all shells to see if they will
+        */
+        //1
+        for(int i=cStage.shells.size()-1; i>=0; i--){
+            //2
+            PVector shellTileCoord = findTileCoord(cStage.shells.get(i).pos, cStage);
+            ArrayList<PVector> possibleWalls = searchNearby_walls(shellTileCoord, 3, 1, cStage);
+            //3
+            for(int j=0; j<possibleWalls.size(); j++){
+                PVector wallPos = new PVector(possibleWalls.get(j).x*cStage.tWidth, possibleWalls.get(j).y*cStage.tWidth);
+                PVector wallDim = new PVector(1.0, 1.0);
+                //####################################
+                //## CHANGE TO CIRCLE-BOX COLLISION ##
+                //####################################
+                boolean isColliding = checkBoxBoxCollision(cStage.shells.get(i).pos, cStage.shells.get(i).dim, wallPos, wallDim, cStage);
+                if(isColliding){
+                    //4
+                    boolean atLimit = cStage.shells.get(i).checkDeflectLimit();
+                    if(atLimit){
+                        //Remove if at limit
+                        cStage.shells.remove(i);
+                        break;
+                    }
+                    else{
+                        //Otherwise deflect it
+                        deflectShellOffWall(cStage.shells.get(i), wallPos, wallDim, cStage);
+                    }
+                }
+            }
+        }
     }
     void checkCollision_shellTank(stage cStage){
-        //pass
-    }
-    void checkCollision_mineWall(stage cStage){
-        //pass
+        //1
+        for(int i=cStage.shells.size()-1; i>=0; i--){
+            boolean shellRemoved = false;   //Skips second check (which would be IMPOSSIBLE if destroyed => ABSOLUTELY NEEDED DO NOT REMOVE)
+
+            //FOR PLAYER TANKS
+            //------------------
+            for(int j=cStage.player_tanks.size()-1; j>=0; j--){
+                //####################################
+                //## CHANGE TO CIRCLE-BOX COLLISION ##
+                //####################################
+                boolean isColliding = checkBoxBoxCollision(cStage.shells.get(i).pos, cStage.shells.get(i).dim, cStage.player_tanks.get(j).pos, cStage.player_tanks.get(j).dim, cStage);
+                if(isColliding){
+                    //Destroy both
+                    cStage.shells.remove(i);
+                    cStage.player_tanks.remove(j);
+                    shellRemoved = true;
+                    break;
+                }
+            }
+
+            //FOR AI TANKS
+            //--------------
+            if(!shellRemoved){
+                for(int j=cStage.ai_tanks.size()-1; j>=0; j--){
+                    //####################################
+                    //## CHANGE TO CIRCLE-BOX COLLISION ##
+                    //####################################
+                    boolean isColliding = checkBoxBoxCollision(cStage.shells.get(i).pos, cStage.shells.get(i).dim, cStage.ai_tanks.get(j).pos, cStage.ai_tanks.get(j).dim, cStage);
+                    if(isColliding){
+                        //Destroy both
+                        cStage.shells.remove(i);
+                        cStage.ai_tanks.remove(j);
+                        break;
+                    }
+                }
+            }
+        }
     }
     void checkCollision_mineTank(stage cStage){
-        //pass
+        for(int i=cStage.mines.size()-1; i>=0; i--){
+            boolean alreadyExploded = false;
+
+            //For PLAYER
+            //------------
+            for(int j=cStage.player_tanks.size()-1; j>=0; j--){
+                //Check whitelist
+                boolean isWhitelisted = false;
+                for(int z=0; z<cStage.mines.get(i).whitelist.size(); z++){
+                    if(cStage.mines.get(i).whitelist.get(z) == cStage.player_tanks.get(j).ID){
+                        isWhitelisted = true;
+                        break;}
+                }
+
+                if(!isWhitelisted){
+                    //####################################
+                    //## CHANGE TO CIRCLE-BOX COLLISION ##
+                    //####################################
+                    boolean isColliding = checkBoxBoxCollision(cStage.mines.get(i).pos, new PVector(cStage.mines.get(i).activeRad, cStage.mines.get(i).activeRad, 0), cStage.player_tanks.get(i).pos, cStage.player_tanks.get(i).dim, cStage);
+                    if(isColliding){
+                        //If they collide, activate mine and destroy both
+                        explodeMine(cStage.mines.get(i), cStage);
+                        alreadyExploded = true;
+                        break;
+                    }
+                }
+            }
+
+            //For AI
+            //--------
+            if(!alreadyExploded){
+                for(int j=cStage.ai_tanks.size()-1; j>=0; j--){
+                    //Check whitelist
+                    boolean isWhitelisted = false;
+                    for(int z=0; z<cStage.mines.get(i).whitelist.size(); z++){
+                        if(cStage.mines.get(i).whitelist.get(z) == cStage.ai_tanks.get(j).ID){
+                            isWhitelisted = true;
+                            break;}
+                    }
+
+                    if(!isWhitelisted){
+                        //####################################
+                        //## CHANGE TO CIRCLE-BOX COLLISION ##
+                        //####################################
+                        boolean isColliding = checkBoxBoxCollision(cStage.mines.get(i).pos, new PVector(cStage.mines.get(i).activeRad, cStage.mines.get(i).activeRad, 0), cStage.ai_tanks.get(i).pos, cStage.ai_tanks.get(i).dim, cStage);
+                        if(isColliding){
+                            //If they collide, activate mine and destroy both
+                            explodeMine(cStage.mines.get(i), cStage);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
     }
     void checkCollision_mineShell(stage cStage){
-        //pass
+        for(int i=cStage.mines.size()-1; i>=0; i--){
+            for(int j=cStage.shells.size()-1; j>=0; j--){
+                //####################################
+                //## CHANGE TO CIRCLE-BOX COLLISION ##
+                //####################################
+                boolean isColliding = checkBoxBoxCollision(cStage.mines.get(i).pos, cStage.mines.get(i).dim, cStage.shells.get(i).pos, cStage.shells.get(i).dim, cStage);
+                if(isColliding){
+                    //If they collide, activate mine and destroy both
+                    explodeMine(cStage.mines.get(i), cStage);
+                    break;
+                }
+            }
+        }
+    }
+
+
+    void explodeMine(mine cMine, stage cStage){
+        explodeMine_shells(cMine, cStage);
+        explodeMine_tanks(cMine, cStage);
+        explodeMine_walls(cMine, cStage);
+        explodeMine_mines(cMine, cStage);
+    }
+    void explodeMine_shells(mine cMine, stage cStage){
+        for(int i=cStage.shells.size()-1; i>=0; i--){
+            float dist = vecDist(cMine.pos, cStage.shells.get(i).pos);
+            if(dist < cMine.explodeRad*cStage.tWidth){
+                cStage.shells.remove(i);
+            }
+        }
+    }
+    void explodeMine_tanks(mine cMine, stage cStage){
+        //For PLAYERS
+        //------------
+        for(int i=cStage.player_tanks.size()-1; i>=0; i--){
+            float dist = vecDist(cMine.pos, cStage.player_tanks.get(i).pos);
+            if(dist < cMine.explodeRad*cStage.tWidth){
+                cStage.player_tanks.remove(i);
+            }
+        }
+
+        //For AI
+        //--------
+        for(int i=cStage.ai_tanks.size()-1; i>=0; i--){
+            float dist = vecDist(cMine.pos, cStage.ai_tanks.get(i).pos);
+            if(dist < cMine.explodeRad*cStage.tWidth){
+                cStage.ai_tanks.remove(i);
+            }
+        }
+    }
+    void explodeMine_walls(mine cMine, stage cStage){
+        /*
+        When a mine explodes, the check is made
+        Looks in radius for tiles applicatable
+        Then destroys all applicable
+
+        NOTE; Only destroys tiles with their CENTRE in the blast zone
+        */
+        //**This is inefficient, but the calculation rarely occurs (once a million frames), so is probably fine
+        ArrayList<PVector> marked = new ArrayList<PVector>();   //So dont skip rows or cols when deleting halfway through
+        for(int j=0; j<cStage.tiles.size(); j++){
+            for(int i=0; i<cStage.tiles.get(j).size(); i++){
+                float dist = vecDist(cMine.pos, new PVector(i*cStage.tWidth, j*cStage.tWidth, cMine.pos.z));
+                if(dist < cMine.explodeRad*cStage.tWidth){
+                    marked.add( new PVector(i,j) );
+                }
+            }
+        }
+        for(int i=0; i<marked.size(); i++){
+            cStage.tiles.get(int(marked.get(i).y)).remove( int(marked.get(i).x) );
+            cStage.tiles.get(int(marked.get(i).y)).add( int(marked.get(i).x), new empty() );
+        }
+    }
+    void explodeMine_mines(mine cMine, stage cStage){
+        /*
+        This current mine is included in the search => clears itself
+        */
+        for(int i=cStage.mines.size()-1; i>=0; i--){
+            float dist = vecDist(cMine.pos, cStage.mines.get(i).pos);
+            if(dist < cMine.explodeRad*cStage.tWidth){
+                cStage.mines.remove(i);
+            }
+        }
+    }
+    int checkTankShells(tank cTank, stage cStage){
+        /*
+        Checks the stage for all shells fired by the given tank, and returns the number currently on screen for it
+        This is used to limit the number of shells a tank can fire at once
+        */
+        int shellCounter = 0;
+        for(int i=0; i<cStage.shells.size(); i++){
+            if(cStage.shells.get(i).owner == cTank.ID){
+                shellCounter++;
+            }
+        }
+        return shellCounter;
     }
 }

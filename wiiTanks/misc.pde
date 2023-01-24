@@ -14,6 +14,14 @@ PVector vecDir(PVector v1, PVector v2){
     */
     return new PVector(v2.x -v1.x, v2.y -v1.y, v2.z -v1.z);
 }
+float vecDist(PVector v1, PVector v2){
+    /*
+    Distance between two vector points
+    NOTE; 3D DISTANCE, NOT 2D
+    */
+    PVector dir = vecDir(v1, v2);
+    return vecMag(dir);
+}
 PVector vecUnitDir(PVector v1, PVector v2){
     /*
     Unit vector pointing FROM v1 TO v2

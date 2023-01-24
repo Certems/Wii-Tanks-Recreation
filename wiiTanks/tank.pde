@@ -16,6 +16,7 @@ class tank extends entity{
     float frictionCoeff = 0.7;
     float engineThrust = 1.2;   //How strong engine is
     float rSpeed = 1.0*PI/64.0; //Rotation speed of chassis
+    int nMaxShell;              //Maximum number of shells that this tank can have fired on screen at once
 
     tank(PVector pos, PVector vel, PVector acc){
         super(pos, vel, acc);
@@ -32,14 +33,22 @@ class tank extends entity{
         calcChassisRot();
         calcTurretRot();
     }
+    void tryFireShell(stage cStage, calculator cCalc){
+        /*
+        Checks if is able to fire a shell first, and if so does it
+        */
+        int ownedShells = cCalc.checkTankShells(this, cStage);
+        if(ownedShells < nMaxShell){
+            fireShell(cStage);}
+    }
     void fireShell(stage cStage){
         /*
         Fires a shell from the turret of this tank
         */
         PVector turretDir = cTurret.getDir();
-        float offset = 0.1*dim.x*cStage.tWidth;
-        float fireSpeed = 1.0;
-        shell newShell = new shell( new PVector(pos.x +offset*turretDir.x, pos.y +offset*turretDir.y, pos.z), new PVector(fireSpeed*turretDir.x, fireSpeed*turretDir.y, 0), new PVector(0,0,0) );
+        float offset = 1.1*dim.x*cStage.tWidth;
+        float fireSpeed = 3.0;
+        shell_normal newShell = new shell_normal( new PVector(pos.x +offset*turretDir.x, pos.y +offset*turretDir.y, pos.z), new PVector(fireSpeed*turretDir.x, fireSpeed*turretDir.y, 0), new PVector(0,0,0), ID );
         cStage.shells.add(newShell);
     }
     void layMine(stage cStage){
@@ -48,6 +57,7 @@ class tank extends entity{
         Whitelists this tank inside the placed mine
         */
         mine newMine = new mine( new PVector(pos.x,pos.y,pos.z), new PVector(0,0,0), new PVector(0,0,0) );
+        newMine.whitelist.add(ID);
         cStage.mines.add(newMine);
     }
     void calcAcc(){
@@ -138,6 +148,7 @@ class tank_red extends tank{
     tank_red(PVector pos, PVector vel, PVector acc){
         super(pos, vel, acc);
         dim = new PVector(0.8, 0.8);    //Relative to tWidth, bounding box size 
+        nMaxShell = 4;
     }
 }
 class tank_gray extends tank{
@@ -146,5 +157,6 @@ class tank_gray extends tank{
     tank_gray(PVector pos, PVector vel, PVector acc){
         super(pos, vel, acc);
         dim = new PVector(0.8, 0.8);    //Relative to tWidth, bounding box size
+        nMaxShell = 4;
     }
 }
