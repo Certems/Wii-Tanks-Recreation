@@ -264,8 +264,8 @@ class calculator{
         boolean isColliding = true;
         for(int i=0; i<bNorms.size(); i++){
             //Find projections for b1 -> min and max
-            float b1Max = vecDot(bNorms.get(i), p1) +d/2.0;
-            float b1Min = vecDot(bNorms.get(i), p1) -d/2.0;
+            float b1Max = vecDot(bNorms.get(i), p1) +cStage.tWidth*d/2.0;
+            float b1Min = vecDot(bNorms.get(i), p1) -cStage.tWidth*d/2.0;
             
             //Find projections for b2 -> min and max#
             float b2Max = vecDot(bNorms.get(i), b2Verts.get(0) );
@@ -358,25 +358,36 @@ class calculator{
         }
         return marked;
     }
-    void moveEntityOutBoxBoxCollision(entity cEntity, float eRot, PVector p, PVector d, float rot, stage cStage){
+    void moveTankOutBoxBoxCollision(tank cTank, PVector p, PVector d, float rot, stage cStage){
         /*
         Moves an entity backwards out of a box
         Centre = p
         Dim = d (in terms of # tWidths NOT pixels)
         Then sets velocity of entity to 0
+
+        NOTE; Rotation consideration here to [stop 0 velocity collisions], which cause [BIG problems]
         */
-        float scale = 0.20;         //**Resolution of backwards moving (relative to frames)
-        int countermeasure = 0;     //**Safety against infinite loops
-        PVector nVel = new PVector(scale*cEntity.vel.x, scale*cEntity.vel.y, scale*cEntity.vel.z);   //New velocity
-        while(countermeasure < 300){
-            cEntity.pos.x -= nVel.x;
-            cEntity.pos.y -= nVel.y;
-            cEntity.pos.z -= nVel.z;
-            boolean stillColliding = checkBoxBoxCollision(cEntity.pos, cEntity.dim, eRot, p, d, rot, cStage);
-            if(!stillColliding){
-                //cEntity.vel = new PVector(0,0,0);
-                break;}
-            countermeasure++;
+        //Reverse effect of rotation
+        if(cTank.tCCW){
+            cTank.turnChassisCW();}
+        if(cTank.tCW){
+            cTank.turnChassisCCW();}
+
+        //Evaluate not rotational motion
+        if( (cTank.accUp || cTank.accDwn) || (vecMag(cTank.vel) != 0) ){
+            float scale = 0.05;         //**Resolution of backwards moving (relative to frames)
+            int countermeasure = 0;     //**Safety against infinite loops
+            PVector nVel = new PVector(scale*cTank.vel.x, scale*cTank.vel.y, scale*cTank.vel.z);
+            while(countermeasure < 300){
+                cTank.pos.x -= nVel.x;
+                cTank.pos.y -= nVel.y;
+                cTank.pos.z -= nVel.z;
+                boolean stillColliding = checkBoxBoxCollision(cTank.pos, cTank.dim, cTank.cChassis.rotation, p, d, rot, cStage);
+                if(!stillColliding){
+                    //cTank.vel = new PVector(0,0,0);
+                    break;}
+                countermeasure++;
+            }
         }
     }
     void moveEntityOutCircleBoxCollision(entity cEntity, PVector p, PVector d, float rot, stage cStage){
@@ -414,8 +425,12 @@ class calculator{
         checkCollision_mineTank(cStage);
         checkCollision_mineShell(cStage);
     }
+    /*
+    --------------
+    LEGACY BELOW
+
     void deflectShellOffWall(shell cShell, PVector bPos, PVector bDim, stage cStage){
-        /*
+        
         Move out of wall
         Find which wall the shell will collide with
         Deflect its velocity accordingly
@@ -435,7 +450,7 @@ class calculator{
 
           If p' has a y component > centre +dimY/2, then would hit the T/B
           If "" ""                < "" ""         , then would hit the L/R
-        */
+        
         PVector velNormal = vecUnit(cShell.vel);
         float a = abs(cShell.pos.x -bPos.x);
         float b = bDim.x/2.0 -a;
@@ -453,6 +468,56 @@ class calculator{
             //Left / Right collision => reverse X vel
             moveEntityOutCircleBoxCollision(cShell, bPos, bDim, 0, cStage);
             cShell.vel.x *= -1;
+        }
+    }
+
+    LEGACY ABOVE
+    --------------
+    */
+    void deflectShellOffWall(shell cShell, PVector bPos, PVector bDim, stage cStage){
+        /*
+        Find side intercept with line equation, taking solutions for -ve t
+        that fit in correct bounds
+        Only check one side which if false => other is correct
+        Therefore ONLY checking x crossing
+
+        p1
+        |     p2
+        |     |
+         |---| --- p3
+         |   |
+         |---| --- p4
+
+        1. r = x_0 + vel*k
+            Where x comp = p1 or p2
+        2. For given k, is the y value in the bounds
+        3. If so, is a vertical collision
+        4. If not, is horizontal
+        */
+        //1
+        float p1 = bPos.x -cStage.tWidth*bDim.x/2.0;
+        float p2 = bPos.x +cStage.tWidth*bDim.x/2.0;
+        float p3 = bPos.y -cStage.tWidth*bDim.y/2.0;
+        float p4 = bPos.y +cStage.tWidth*bDim.y/2.0;
+        float k1 = (p1-cShell.pos.x) / (cShell.vel.x);
+        float k2 = (p2-cShell.pos.x) / (cShell.vel.x);
+        //2
+        float k = k1;
+        if(k2 < 0){
+            k = k2;}
+        float yComp = cShell.pos.y +cShell.vel.y*k;
+        boolean inBounds = (p3 <= yComp) && (yComp < p4);
+        if(inBounds){
+            //Valid => Vertical collision (flip X)
+            //3
+            moveEntityOutCircleBoxCollision(cShell, bPos, bDim, 0, cStage);
+            cShell.vel.x *= -1;
+        }
+        else{
+            //NOT Valid => Horizontal collision (flip Y)
+            //3
+            moveEntityOutCircleBoxCollision(cShell, bPos, bDim, 0, cStage);
+            cShell.vel.y *= -1;
         }
     }
     void checkCollision_tankWall(stage cStage){
@@ -481,7 +546,7 @@ class calculator{
                 boolean isColliding = checkBoxBoxCollision(cStage.player_tanks.get(i).pos, cStage.player_tanks.get(i).dim, cStage.player_tanks.get(i).cChassis.rotation, wallPos, wallDim, 0, cStage);
                 if(isColliding){
                     //4
-                    moveEntityOutBoxBoxCollision(cStage.player_tanks.get(i), cStage.player_tanks.get(i).cChassis.rotation, wallPos, wallDim, 0, cStage);
+                    moveTankOutBoxBoxCollision(cStage.player_tanks.get(i), wallPos, wallDim, 0, cStage);
                     cStage.player_tanks.get(i).vel = new PVector(0,0,0);
                 }
             }
@@ -500,7 +565,7 @@ class calculator{
                 boolean isColliding = checkBoxBoxCollision(cStage.ai_tanks.get(i).pos, cStage.ai_tanks.get(i).dim, cStage.ai_tanks.get(i).cChassis.rotation, wallPos, wallDim, 0, cStage);
                 if(isColliding){
                     //4
-                    moveEntityOutBoxBoxCollision(cStage.ai_tanks.get(i), cStage.ai_tanks.get(i).cChassis.rotation, wallPos, wallDim, 0, cStage);
+                    moveTankOutBoxBoxCollision(cStage.ai_tanks.get(i), wallPos, wallDim, 0, cStage);
                     cStage.ai_tanks.get(i).vel = new PVector(0,0,0);
                 }
             }
@@ -512,14 +577,14 @@ class calculator{
                 if(i != p){    
                     boolean isColliding = checkBoxBoxCollision(cStage.player_tanks.get(i).pos, cStage.player_tanks.get(i).dim, cStage.player_tanks.get(i).cChassis.rotation, cStage.player_tanks.get(p).pos, cStage.player_tanks.get(p).dim, cStage.player_tanks.get(p).cChassis.rotation, cStage);
                     if(isColliding){
-                        moveEntityOutBoxBoxCollision(cStage.player_tanks.get(i), cStage.player_tanks.get(i).cChassis.rotation, cStage.player_tanks.get(p).pos, cStage.player_tanks.get(p).dim, cStage.player_tanks.get(p).cChassis.rotation, cStage);
+                        moveTankOutBoxBoxCollision(cStage.player_tanks.get(i), cStage.player_tanks.get(p).pos, cStage.player_tanks.get(p).dim, cStage.player_tanks.get(p).cChassis.rotation, cStage);
                         cStage.player_tanks.get(i).vel = new PVector(0,0,0);}
                 }
             }
             for(int p=0; p<cStage.ai_tanks.size(); p++){   
                 boolean isColliding = checkBoxBoxCollision(cStage.player_tanks.get(i).pos, cStage.player_tanks.get(i).dim, cStage.player_tanks.get(i).cChassis.rotation, cStage.ai_tanks.get(p).pos, cStage.ai_tanks.get(p).dim, cStage.ai_tanks.get(p).cChassis.rotation, cStage);
                 if(isColliding){
-                    moveEntityOutBoxBoxCollision(cStage.player_tanks.get(i), cStage.player_tanks.get(i).cChassis.rotation, cStage.ai_tanks.get(p).pos, cStage.ai_tanks.get(p).dim, cStage.ai_tanks.get(p).cChassis.rotation, cStage);
+                    moveTankOutBoxBoxCollision(cStage.player_tanks.get(i), cStage.ai_tanks.get(p).pos, cStage.ai_tanks.get(p).dim, cStage.ai_tanks.get(p).cChassis.rotation, cStage);
                     cStage.player_tanks.get(i).vel = new PVector(0,0,0);}
             }
         }
@@ -531,7 +596,7 @@ class calculator{
                 if(i != p){
                     boolean isColliding = checkBoxBoxCollision(cStage.ai_tanks.get(i).pos, cStage.ai_tanks.get(i).dim, cStage.ai_tanks.get(i).cChassis.rotation, cStage.ai_tanks.get(p).pos, cStage.ai_tanks.get(p).dim, cStage.ai_tanks.get(p).cChassis.rotation,cStage);
                     if(isColliding){
-                        moveEntityOutBoxBoxCollision(cStage.ai_tanks.get(i), cStage.ai_tanks.get(i).cChassis.rotation, cStage.ai_tanks.get(p).pos, cStage.ai_tanks.get(p).dim, cStage.ai_tanks.get(p).cChassis.rotation, cStage);
+                        moveTankOutBoxBoxCollision(cStage.ai_tanks.get(i), cStage.ai_tanks.get(p).pos, cStage.ai_tanks.get(p).dim, cStage.ai_tanks.get(p).cChassis.rotation, cStage);
                         cStage.ai_tanks.get(i).vel = new PVector(0,0,0);}
                 }
             }

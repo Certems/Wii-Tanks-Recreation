@@ -15,8 +15,8 @@ class tank extends entity{
 
     float frictionCoeff = 0.7;
     float engineThrust = 1.2;   //How strong engine is
-    float rSpeed = 1.0*PI/64.0; //Rotation speed of chassis
     int nMaxShell;              //Maximum number of shells that this tank can have fired on screen at once
+    float rSpeed = 1.0*PI/64.0; //Rotation speed of chassis
 
     tank(PVector pos, PVector vel, PVector acc){
         super(pos, vel, acc);
@@ -97,9 +97,19 @@ class tank extends entity{
     }
     void calcChassisRot(){
         if(tCCW){
-            cChassis.rotation -= rSpeed;}
+            turnChassisCCW();}
         if(tCW){
-            cChassis.rotation += rSpeed;}
+            turnChassisCW();}
+    }
+    void turnChassisCCW(){
+        cChassis.rotation -= rSpeed;
+        //Keep within correct bounds (0,2PI)
+        cChassis.rotation %= 2.0*PI;
+        if(cChassis.rotation < 0){
+            cChassis.rotation += 2.0*PI;}
+    }
+    void turnChassisCW(){
+        cChassis.rotation += rSpeed;
         //Keep within correct bounds (0,2PI)
         cChassis.rotation %= 2.0*PI;
         if(cChassis.rotation < 0){
