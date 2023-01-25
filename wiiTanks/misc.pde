@@ -33,3 +33,6 @@ PVector vecUnitDir(PVector v1, PVector v2){
     else{
         return new PVector(dir.x/mag, dir.y/mag, dir.z/mag);}
 }
+float vecDot(PVector v1, PVector v2){
+    return ( (v1.x*v2.x) + (v1.y*v2.y) );
+}
