@@ -7,6 +7,8 @@ class tile{
     boolean shellCollision;     //Shells cannot move through this
     boolean destructable;       //Explosives (mines) can destroy this
 
+    PShape model;
+
     tile(){
         //pass
     }
@@ -20,6 +22,8 @@ class empty extends tile{
         tankCollision  = false;
         shellCollision = false;
         destructable   = false;
+
+        model = null;
     }
 }
 class hole extends tile{
@@ -30,6 +34,11 @@ class hole extends tile{
         tankCollision  = true;
         shellCollision = false;
         destructable   = false;
+
+        pushStyle();
+        fill(0);
+        model = createShape(SPHERE, 1);
+        popStyle();
     }
 }
 class cork extends tile{
@@ -40,6 +49,10 @@ class cork extends tile{
         tankCollision  = true;
         shellCollision = true;
         destructable   = true;
+
+        noStroke();
+        model = createShape(BOX, 1,1,1);
+        model.setTexture(text_cork);
     }
 }
 class crate extends tile{
@@ -50,5 +63,9 @@ class crate extends tile{
         tankCollision  = true;
         shellCollision = true;
         destructable   = false;
+
+        noStroke();
+        model = createShape(BOX, 1,1,1);
+        model.setTexture(text_crate);
     }
 }

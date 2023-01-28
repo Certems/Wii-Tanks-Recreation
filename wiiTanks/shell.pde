@@ -4,6 +4,8 @@ class shell extends entity{
     int nDeflected = 0; //Number of times it has deflected
     int deflectLim;     //Number of times it can deflect before being destroyed (e.g 1 = can deflect once)
 
+    PShape model;
+
     shell(PVector pos, PVector vel, PVector acc, int shellOwner){
         super(pos, vel, acc);
         owner = shellOwner;
@@ -45,6 +47,8 @@ class shell_normal extends shell{
         super(pos, vel, acc, owner);
         dim = new PVector(0.2,0.2); //Relative to tWidth, bounding radius(???)
         deflectLim = 1;
+
+        model = entity_shell_normal;
     }
 }
 class shell_rocket extends shell{
@@ -52,7 +56,9 @@ class shell_rocket extends shell{
 
     shell_rocket(PVector pos, PVector vel, PVector acc, int owner){
         super(pos, vel, acc, owner);
-        dim = new PVector(0.2,0.2); //Relative to tWidth, bounding radius(???)
+        dim = new PVector(0.6,0.4); //Relative to tWidth, bounding radius(???)
         deflectLim = 0;
+
+        model = entity_shell_rocket;
     }
 }

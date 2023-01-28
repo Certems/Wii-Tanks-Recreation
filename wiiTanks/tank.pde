@@ -123,6 +123,7 @@ class tank extends entity{
     }
 }
 class chassis{
+    PShape model = null;
     float rotation = 0.0;
 
     chassis(){
@@ -137,6 +138,7 @@ class chassis{
     }
 }
 class turret{
+    PShape model = null;
     float rotation = 0.0;
 
     turret(){
@@ -157,8 +159,23 @@ class tank_red extends tank{
 
     tank_red(PVector pos, PVector vel, PVector acc){
         super(pos, vel, acc);
-        dim = new PVector(0.8, 0.8);    //Relative to tWidth, bounding box size 
+        dim = new PVector(1.1, 0.8);    //Relative to tWidth, bounding box size 
         nMaxShell = 4;
+
+        cChassis.model = entity_tank_red_chassis;
+        cTurret.model  = entity_tank_red_turret;
+    }
+}
+class tank_blue extends tank{
+    //pass
+
+    tank_blue(PVector pos, PVector vel, PVector acc){
+        super(pos, vel, acc);
+        dim = new PVector(1.1, 0.8);    //Relative to tWidth, bounding box size
+        nMaxShell = 4;
+
+        cChassis.model = entity_tank_blue_chassis;
+        cTurret.model  = entity_tank_blue_turret;
     }
 }
 class tank_gray extends tank{
@@ -166,7 +183,10 @@ class tank_gray extends tank{
 
     tank_gray(PVector pos, PVector vel, PVector acc){
         super(pos, vel, acc);
-        dim = new PVector(0.8, 0.8);    //Relative to tWidth, bounding box size
+        dim = new PVector(1.1, 0.8);    //Relative to tWidth, bounding box size
         nMaxShell = 4;
+
+        cChassis.model = entity_tank_gray_chassis;
+        cTurret.model  = entity_tank_gray_turret;
     }
 }

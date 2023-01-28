@@ -13,9 +13,10 @@ class manager{
 
     stage cStage;
 
-    ArrayList<Integer> gameState = new ArrayList<>();   //Lists which menus to show, in which order
+    ArrayList<Integer> gameState = new ArrayList<Integer>();   //Lists which menus to show, in which order
 
     manager(){
+        loadAll();
         initialiseManager();
     }
 
@@ -27,8 +28,8 @@ class manager{
         gameState.add(0);
         loadStagePreset(0);
         cStage.player_tanks.add(new tank_red(   new PVector(50,50,30), new PVector(0,0,0), new PVector(0,0,0)));
-        cStage.ai_tanks.add(new tank_gray(      new PVector(250,50,30), new PVector(0,0,0), new PVector(0,0,0)));
-        cStage.ai_tanks.add(new tank_gray(      new PVector(250,280,30), new PVector(0,0,0), new PVector(0,0,0)));
+        cStage.ai_tanks.add(new tank_blue(      new PVector(250,50,30), new PVector(0,0,0), new PVector(0,0,0)));
+        cStage.ai_tanks.add(new tank_blue(      new PVector(250,280,30), new PVector(0,0,0), new PVector(0,0,0)));
     }
 
 
@@ -61,16 +62,16 @@ class manager{
 
     void loadStagePreset(int nPreset){
         if(nPreset == 0){
-            cStage = createStagePreset(preset0, new PVector(12,12));}
+            cStage = createStagePreset(preset0_tiles, preset0_tanks, new PVector(23,12));}
         //...
     }
-    stage createStagePreset(IntList cList, PVector dimTiles){
+    stage createStagePreset(IntList tileList, IntList tankList, PVector dimTiles){
         stage nStage = new stage();
         ArrayList<ArrayList<tile>> tiles = new ArrayList<ArrayList<tile>>();
         for(int j=0; j<dimTiles.y; j++){
             tiles.add( new ArrayList<tile>() );
             for(int i=0; i<dimTiles.x; i++){
-                int tileType = preset0.get(i +j*int(dimTiles.x));
+                int tileType = tileList.get(i +j*int(dimTiles.x));
                 if(tileType == 0){
                     empty newEmpty = new empty();
                     tiles.get(j).add(newEmpty);}
@@ -87,29 +88,10 @@ class manager{
             }
         }
         nStage.tiles = tiles;
+
+        //####
+        //## DO AGAIN FOR TANKS
+        //####
         return nStage;
     }
 }
-
-/*
-For presets;
-0 = empty
-1 = crate
-2 = cork
-3 = hole
-*/
-IntList preset0 = new IntList(
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-    1, 0, 0, 0, 1, 1, 0, 0, 2, 0, 0, 1,
-    1, 0, 0, 0, 0, 1, 0, 0, 2, 0, 0, 1,
-    1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1,
-    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-    1, 0, 0, 0, 0, 0, 0, 3, 3, 3, 0, 1,
-    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-    1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
-);
-//...

@@ -375,7 +375,7 @@ class calculator{
 
         //Evaluate not rotational motion
         if( (cTank.accUp || cTank.accDwn) || (vecMag(cTank.vel) != 0) ){
-            float scale = 0.05;         //**Resolution of backwards moving (relative to frames)
+            float scale = 0.005;         //**Resolution of backwards moving (relative to frames)
             int countermeasure = 0;     //**Safety against infinite loops
             PVector nVel = new PVector(scale*cTank.vel.x, scale*cTank.vel.y, scale*cTank.vel.z);
             while(countermeasure < 300){
@@ -778,9 +778,11 @@ class calculator{
         ArrayList<PVector> marked = new ArrayList<PVector>();   //So dont skip rows or cols when deleting halfway through
         for(int j=0; j<cStage.tiles.size(); j++){
             for(int i=0; i<cStage.tiles.get(j).size(); i++){
-                float dist = vecDist(cMine.pos, new PVector(i*cStage.tWidth, j*cStage.tWidth, cMine.pos.z));
-                if(dist < cMine.explodeRad*cStage.tWidth){
-                    marked.add( new PVector(i,j) );
+                if(cStage.tiles.get(j).get(i).destructable){
+                    float dist = vecDist(cMine.pos, new PVector(i*cStage.tWidth, j*cStage.tWidth, cMine.pos.z));
+                    if(dist < cMine.explodeRad*cStage.tWidth){
+                        marked.add( new PVector(i,j) );
+                    }
                 }
             }
         }
