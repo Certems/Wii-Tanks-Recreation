@@ -12,6 +12,15 @@ class graphics{
         if(state == 0){
             displayInMatch(cManager.cStage);
         }
+        if(state == 1){
+            displayBanners(cManager.cInfo);
+        }
+        if(state == 2){
+            displayResultsMenu(cManager.cInfo);
+        }
+        if(state == 3){
+            displayTransitionScreen(cManager.cInfo);
+        }
         //...
     }
 
@@ -27,7 +36,7 @@ class graphics{
     void displayLighting(){
         pushStyle();
 
-        spotLight(200,200,200, width/2.0, height/2.0, 1200, -1, 0, 0, PI/2, 0.001);
+        spotLight(200,200,200, width/2.0 +300, height/2.0, 1200, -1, 0, 0, PI/2, 0.001);
 
         popStyle();
     }
@@ -257,5 +266,103 @@ class graphics{
 
         popMatrix();
         popStyle();
+    }
+
+
+
+    void displayBanners(info cInfo){
+        display_missionCounter(cInfo);
+    }
+
+
+    void display_missionCounter(info cInfo){
+        pushStyle();
+        textAlign(CENTER, CENTER);
+        textSize(20);
+        rectMode(CENTER);
+
+        fill(0);
+        rect(width/2.0, 9.0*height/10.0, 1.0*height/10.0, 0.5*height/10.0);
+        fill(255);
+        text("Mission "+cInfo.nMission, width/2.0, 9.0*height/10.0);
+
+        popStyle();
+    }
+    void display_start(){
+        pushStyle();
+        textAlign(CENTER, CENTER);
+        textSize(40);
+        rectMode(CENTER);
+
+        fill(0);
+        rect(width/2.0, height/2.0, 3.0*height/10.0, 1.5*height/10.0);
+        fill(255);
+        text("START", width/2.0, height/2.0);
+
+        popStyle();
+    }
+    void display_missionComplete(){
+        pushStyle();
+        textAlign(CENTER, CENTER);
+        textSize(40);
+        rectMode(CENTER);
+
+        fill(0);
+        rect(width/2.0, height/2.0, 3.0*height/10.0, 1.5*height/10.0);
+        fill(255);
+        text("Mission Complete", width/2.0, height/2.0);
+
+        popStyle();
+    }
+    void display_fadeToBlack(int fadeTime, int cTime){
+        pushStyle();
+        textAlign(CENTER, CENTER);
+        textSize(40);
+        rectMode(CENTER);
+
+        float fadeCoeff = exp(5.0*cTime/fadeTime -10.0);
+
+        fill(0,0,0, 255*fadeCoeff);
+        rect(width/2.0, height/2.0, width, height);
+
+        popStyle();
+    }
+    void display_fadeOutBlack(int fadeTime, int cTime){
+        pushStyle();
+        textAlign(CENTER, CENTER);
+        textSize(40);
+        rectMode(CENTER);
+
+        float fadeCoeff = exp(-5.0*cTime/fadeTime);
+
+        fill(0,0,0, 255*fadeCoeff);
+        rect(width/2.0, height/2.0, width, height);
+
+        popStyle();
+    }
+    void display_transitionScreen(){
+        pushStyle();
+        textAlign(CENTER, CENTER);
+        textSize(40);
+        rectMode(CENTER);
+
+        fill(0);
+        rect(width/2.0, height/2.0, width, height);
+        fill(255);
+        text("[TRANSITION]", width/2.0, height/2.0);
+
+        popStyle();
+    }
+
+
+
+    void displayResultsMenu(info cInfo){
+        //pass
+    }
+
+
+
+    void displayTransitionScreen(info cInfo){
+        //pass
     }
 }

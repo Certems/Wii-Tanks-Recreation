@@ -10,8 +10,24 @@ PShape entity_tank_red_chassis;
 PShape entity_tank_red_turret;
 PShape entity_tank_blue_chassis;
 PShape entity_tank_blue_turret;
+PShape entity_tank_brown_chassis;
+PShape entity_tank_brown_turret;
 PShape entity_tank_gray_chassis;
 PShape entity_tank_gray_turret;
+PShape entity_tank_teal_chassis;
+PShape entity_tank_teal_turret;
+PShape entity_tank_yellow_chassis;
+PShape entity_tank_yellow_turret;
+PShape entity_tank_pink_chassis;
+PShape entity_tank_pink_turret;
+PShape entity_tank_green_chassis;
+PShape entity_tank_green_turret;
+PShape entity_tank_purple_chassis;
+PShape entity_tank_purple_turret;
+PShape entity_tank_white_chassis;
+PShape entity_tank_white_turret;
+PShape entity_tank_black_chassis;
+PShape entity_tank_black_turret;
 PShape entity_shell_normal;
 PShape entity_shell_rocket;
 PShape entity_mine;
@@ -54,7 +70,15 @@ void loadSounds(){
 void loadModels_tanks(){
     loadModels_tanks_red();
     loadModels_tanks_blue();
+    loadModels_tanks_brown();
     loadModels_tanks_gray();
+    loadModels_tanks_teal();
+    loadModels_tanks_yellow();
+    loadModels_tanks_pink();
+    loadModels_tanks_green();
+    loadModels_tanks_purple();
+    loadModels_tanks_white();
+    loadModels_tanks_black();
 }
 void loadModels_tanks_red(){
     entity_tank_red_chassis = loadShape("tank_red_chassis.obj");
@@ -64,9 +88,41 @@ void loadModels_tanks_blue(){
     entity_tank_blue_chassis = loadShape("tank_blue_chassis.obj");
     entity_tank_blue_turret  = loadShape("tank_blue_turret.obj");
 }
+void loadModels_tanks_brown(){
+    entity_tank_brown_chassis = loadShape("tank_brown_chassis.obj");
+    entity_tank_brown_turret  = loadShape("tank_brown_turret.obj");
+}
 void loadModels_tanks_gray(){
-    //entity_tank_red_chassis = loadShape("tank_gray_chassis.obj");
-    //entity_tank_red_turret  = loadShape("tank_gray_turret.obj");
+    entity_tank_gray_chassis = loadShape("tank_gray_chassis.obj");
+    entity_tank_gray_turret  = loadShape("tank_gray_turret.obj");
+}
+void loadModels_tanks_teal(){
+    entity_tank_teal_chassis = loadShape("tank_teal_chassis.obj");
+    entity_tank_teal_turret  = loadShape("tank_teal_turret.obj");
+}
+void loadModels_tanks_yellow(){
+    entity_tank_yellow_chassis = loadShape("tank_yellow_chassis.obj");
+    entity_tank_yellow_turret  = loadShape("tank_yellow_turret.obj");
+}
+void loadModels_tanks_pink(){
+    entity_tank_pink_chassis = loadShape("tank_pink_chassis.obj");
+    entity_tank_pink_turret  = loadShape("tank_pink_turret.obj");
+}
+void loadModels_tanks_green(){
+    entity_tank_green_chassis = loadShape("tank_green_chassis.obj");
+    entity_tank_green_turret  = loadShape("tank_green_turret.obj");
+}
+void loadModels_tanks_purple(){
+    entity_tank_purple_chassis = loadShape("tank_purple_chassis.obj");
+    entity_tank_purple_turret  = loadShape("tank_purple_turret.obj");
+}
+void loadModels_tanks_white(){
+    entity_tank_white_chassis = loadShape("tank_white_chassis.obj");
+    entity_tank_white_turret  = loadShape("tank_white_turret.obj");
+}
+void loadModels_tanks_black(){
+    entity_tank_black_chassis = loadShape("tank_black_chassis.obj");
+    entity_tank_black_turret  = loadShape("tank_black_turret.obj");
 }
 void loadModels_shells(){
     entity_shell_normal = loadShape("shell_normal.obj");

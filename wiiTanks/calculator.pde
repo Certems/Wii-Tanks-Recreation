@@ -115,10 +115,34 @@ class calculator{
     }
 
 
+    void calcRoundOver(stage cStage){
+        if( checkRoundOver(cStage) && !cManager.cInfo.roundOver ){
+            ArrayList<Integer> timeSet = new ArrayList<Integer>();
+            timeSet.add(2);timeSet.add(2);timeSet.add(2);timeSet.add(2);timeSet.add(2);timeSet.add(2);
+            cManager.coordEvents.add( new coordinator(0, timeSet) );
+            cManager.cInfo.roundOver = true;
+        }
+    }
+    boolean checkRoundOver(stage cStage){
+        return checkAllTanksDestroyed(cStage);
+    }
+    boolean checkAllTanksDestroyed(stage cStage){
+        /*
+        Checks if all tanks and destroyed, and hence a new stage 
+        should start
+        */
+        if(cStage.ai_tanks.size() == 0){
+            return true;}
+        else{
+            return false;}
+    }
+
+
     void calcInMatch(stage cStage){
         calcTanks(cStage);
         calcShells(cStage);
         calcCollisionCases(cStage);
+        calcRoundOver(cStage);
     }
     void calcTanks(stage cStage){
         /*

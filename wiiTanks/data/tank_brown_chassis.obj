@@ -1,6 +1,6 @@
 # Blender v2.81 (sub 16) OBJ File: 'wiiTank.blend'
 # www.blender.org
-mtllib tank_gray_chassis.mtl
+mtllib tank_brown_chassis.mtl
 o tank_body.005_Cube.011
 v 23.889437 12.023531 4.086924
 v 16.453264 12.023531 10.000000

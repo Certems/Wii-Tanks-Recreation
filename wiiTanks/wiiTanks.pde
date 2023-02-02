@@ -7,6 +7,7 @@ void setup(){
 void draw(){
     cManager.calcGameState();
     cManager.displayGameState();
+    cManager.resolveCoordinator();
 }
 
 void keyPressed(){

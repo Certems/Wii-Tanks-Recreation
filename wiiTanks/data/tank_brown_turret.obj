@@ -1,6 +1,6 @@
 # Blender v2.81 (sub 16) OBJ File: 'wiiTank.blend'
 # www.blender.org
-mtllib tank_gray_turret.mtl
+mtllib tank_brown_turret.mtl
 o tank_head_exit.005_Cylinder.012
 v 36.024200 0.000000 9.780276
 v 32.719635 -0.000000 9.780275
