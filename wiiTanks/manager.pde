@@ -70,6 +70,77 @@ class manager{
     }
 
 
+    tile generate_tile(int tileType){
+        /*
+        Takes a specified tile type, and creates an object corresponding to the 
+        given type
+        #####
+        ## THIS IS SUCH A BAD WAY OF DOING THIS, HAVE SOME SORT OF RETURN TYPE STATIC FUNC WITHIN EACH CLASS --> DEFO REDO
+        #####
+        */
+        if(tileType == 0){
+            empty newEmpty = new empty();
+            return newEmpty;}
+        else if(tileType == 1){
+            crate newCrate = new crate();
+            return newCrate;}
+        else if(tileType == 2){
+            cork newCork = new cork();
+            return newCork;}
+        else if(tileType == 3){
+            hole newHole = new hole();
+            return newHole;}
+        else{
+            return null;}
+        //...
+    }
+    tank generate_tank(int tankType, PVector tPos){
+        /*
+        Takes a specified tank type, and creates an object corresponding to the 
+        given type.
+        It also ensures the tank position is fixed to an initial point too.
+
+        Player tanks are -ve
+        AI tanks are +ve
+
+        #####
+        ## THIS IS SUCH A BAD WAY OF DOING THIS, HAVE SOME SORT OF RETURN TYPE STATIC FUNC WITHIN EACH CLASS --> DEFO REDO
+        #####
+        */
+        if(tankType == -1){
+            tank_red newTank = new tank_red( new PVector(tPos.x, tPos.y, tPos.z), new PVector(0,0,0), new PVector(0,0,0) );
+            return newTank;}
+        else if(tankType == 1){
+            tank_brown newTank = new tank_brown( new PVector(tPos.x, tPos.y, tPos.z), new PVector(0,0,0), new PVector(0,0,0) );
+            return newTank;}
+        else if(tankType == 2){
+            tank_gray newTank = new tank_gray( new PVector(tPos.x, tPos.y, tPos.z), new PVector(0,0,0), new PVector(0,0,0) );
+            return newTank;}
+        else if(tankType == 3){
+            tank_teal newTank = new tank_teal( new PVector(tPos.x, tPos.y, tPos.z), new PVector(0,0,0), new PVector(0,0,0) );
+            return newTank;}
+        else if(tankType == 4){
+            tank_yellow newTank = new tank_yellow( new PVector(tPos.x, tPos.y, tPos.z), new PVector(0,0,0), new PVector(0,0,0) );
+            return newTank;}
+        else if(tankType == 5){
+            tank_pink newTank = new tank_pink( new PVector(tPos.x, tPos.y, tPos.z), new PVector(0,0,0), new PVector(0,0,0) );
+            return newTank;}
+        else if(tankType == 6){
+            tank_green newTank = new tank_green( new PVector(tPos.x, tPos.y, tPos.z), new PVector(0,0,0), new PVector(0,0,0) );
+            return newTank;}
+        else if(tankType == 7){
+            tank_purple newTank = new tank_purple( new PVector(tPos.x, tPos.y, tPos.z), new PVector(0,0,0), new PVector(0,0,0) );
+            return newTank;}
+        else if(tankType == 8){
+            tank_white newTank = new tank_white( new PVector(tPos.x, tPos.y, tPos.z), new PVector(0,0,0), new PVector(0,0,0) );
+            return newTank;}
+        else if(tankType == 9){
+            tank_black newTank = new tank_black( new PVector(tPos.x, tPos.y, tPos.z), new PVector(0,0,0), new PVector(0,0,0) );
+            return newTank;}
+        else{
+            return null;}
+        //...
+    }
     void loadStagePreset(int nPreset){
         if(nPreset == 1){
             cStage = createStagePreset(preset1_tiles, preset1_tanks, new PVector(23,12));}
@@ -84,19 +155,8 @@ class manager{
             tiles.add( new ArrayList<tile>() );
             for(int i=0; i<dimTiles.x; i++){
                 int tileType = tileList.get(i +j*int(dimTiles.x));
-                if(tileType == 0){
-                    empty newEmpty = new empty();
-                    tiles.get(j).add(newEmpty);}
-                if(tileType == 1){
-                    crate newCrate = new crate();
-                    tiles.get(j).add(newCrate);}
-                if(tileType == 2){
-                    cork newCork = new cork();
-                    tiles.get(j).add(newCork);}
-                if(tileType == 3){
-                    hole newHole = new hole();
-                    tiles.get(j).add(newHole);}
-                //...
+                tile newTile = generate_tile(tileType);
+                tiles.get(j).add(newTile);
             }
         }
         nStage.tiles = tiles;
@@ -107,37 +167,13 @@ class manager{
             for(int i=0; i<dimTiles.x; i++){
                 int tankType = tankList.get(i +j*int(dimTiles.x));
                 PVector tPos = new PVector((i+0.5)*nStage.tWidth, (j+0.5)*nStage.tWidth, nStage.tWidth);
-                if(tankType == -1){
-                    tank_red newTank = new tank_red( new PVector(tPos.x, tPos.y, tPos.z), new PVector(0,0,0), new PVector(0,0,0) );
-                    playerTanks.add(newTank);}
-                if(tankType == 1){
-                    tank_brown newTank = new tank_brown( new PVector(tPos.x, tPos.y, tPos.z), new PVector(0,0,0), new PVector(0,0,0) );
-                    aiTanks.add(newTank);}
-                if(tankType == 2){
-                    tank_gray newTank = new tank_gray( new PVector(tPos.x, tPos.y, tPos.z), new PVector(0,0,0), new PVector(0,0,0) );
-                    aiTanks.add(newTank);}
-                if(tankType == 3){
-                    tank_teal newTank = new tank_teal( new PVector(tPos.x, tPos.y, tPos.z), new PVector(0,0,0), new PVector(0,0,0) );
-                    aiTanks.add(newTank);}
-                if(tankType == 4){
-                    tank_yellow newTank = new tank_yellow( new PVector(tPos.x, tPos.y, tPos.z), new PVector(0,0,0), new PVector(0,0,0) );
-                    aiTanks.add(newTank);}
-                if(tankType == 5){
-                    tank_pink newTank = new tank_pink( new PVector(tPos.x, tPos.y, tPos.z), new PVector(0,0,0), new PVector(0,0,0) );
-                    aiTanks.add(newTank);}
-                if(tankType == 6){
-                    tank_green newTank = new tank_green( new PVector(tPos.x, tPos.y, tPos.z), new PVector(0,0,0), new PVector(0,0,0) );
-                    aiTanks.add(newTank);}
-                if(tankType == 7){
-                    tank_purple newTank = new tank_purple( new PVector(tPos.x, tPos.y, tPos.z), new PVector(0,0,0), new PVector(0,0,0) );
-                    aiTanks.add(newTank);}
-                if(tankType == 8){
-                    tank_white newTank = new tank_white( new PVector(tPos.x, tPos.y, tPos.z), new PVector(0,0,0), new PVector(0,0,0) );
-                    aiTanks.add(newTank);}
-                if(tankType == 9){
-                    tank_black newTank = new tank_black( new PVector(tPos.x, tPos.y, tPos.z), new PVector(0,0,0), new PVector(0,0,0) );
-                    aiTanks.add(newTank);}
-                //...
+                tank newTank = generate_tank(tankType, tPos);
+                if(newTank != null){
+                    if(tankType < 0){
+                        playerTanks.add(newTank);}
+                    else{
+                        aiTanks.add(newTank);}
+                }
             }
         }
         nStage.player_tanks = playerTanks;
