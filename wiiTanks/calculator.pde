@@ -13,12 +13,29 @@ class calculator{
         if(state == 0){
             calcInMatch(cManager.cStage);
         }
+        if(state == 1){
+            calcTransition_missionSuccess(cManager.cTransition_missionSuccess);
+        }
+        if(state == 2){
+            calcTransition_missionFail(cManager.cTransition_missionFail);
+        }
         //...
     }
     void calcKeyPressed(int state, stage cStage){
         if(state == 0){
             //Player Tank controls
             //---------------------
+            //##########################
+            //#### PURELY BUGFIXING ####
+            //##########################
+            if(key == '8'){
+                cManager.startTransition_missionFail();
+            }
+            //##########################
+            //#### PURELY BUGFIXING ####
+            //##########################
+
+
             if(key == 'w'){
                 //P1 accelerate up (+ve)
                 if(cStage.player_tanks.size()>0){
@@ -824,5 +841,21 @@ class calculator{
             }
         }
         return shellCounter;
+    }
+
+    //###########################################
+    //### SHOULD MERGE THESE CLASSES INTO ONE ###
+    //###########################################
+    //Mission Success Transition
+    void calcTransition_missionSuccess(transition_missionSuccess cTransition){
+        cTransition.calc_timer();
+        cTransition.calc_transitionState();
+        cTransition.calc_removeFinishedState(1);    //1 to specify what gameState number this transition is
+    }
+    //Mission Fail Transition
+    void calcTransition_missionFail(transition_missionFail cTransition){
+        cTransition.calc_timer();
+        cTransition.calc_transitionState();
+        cTransition.calc_removeFinishedState(2);    //1 to specify what gameState number this transition is
     }
 }

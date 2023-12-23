@@ -13,13 +13,10 @@ class graphics{
             displayInMatch(cManager.cStage);
         }
         if(state == 1){
-            displayBanners(cManager.cInfo);
+            displayTransition_missionSuccess(cManager.cTransition_missionSuccess, cManager.cInfo);
         }
         if(state == 2){
-            displayResultsMenu(cManager.cInfo);
-        }
-        if(state == 3){
-            displayTransitionScreen(cManager.cInfo);
+            displayTransition_missionFail(cManager.cTransition_missionFail, cManager.cInfo);
         }
         //...
     }
@@ -269,100 +266,79 @@ class graphics{
     }
 
 
-
-    void displayBanners(info cInfo){
-        display_missionCounter(cInfo);
+    //Mission Success Transition
+    void displayTransition_missionSuccess(transition_missionSuccess cTransition, info cInfo){
+        display_label(cTransition.cState);
     }
-
-
-    void display_missionCounter(info cInfo){
+    //Mission Fail Transition
+    void displayTransition_missionFail(transition_missionFail cTransition, info cInfo){
+        display_label(cTransition.cState);
+    }
+    void display_label(String labelName){
+        if(labelName == "banner_roundEnd"){
+            display_label_bannerRoundEnd();}
+        if(labelName == "black"){
+            display_label_black();}
+        if(labelName == "screen_stats"){
+            display_label_screenStats();}
+        if(labelName == "banner_roundStart"){
+            display_label_bannerRoundStart();}
+    }
+    void display_label_bannerRoundEnd(){
         pushStyle();
-        textAlign(CENTER, CENTER);
-        textSize(20);
         rectMode(CENTER);
+        textAlign(CENTER,CENTER);
 
+        stroke(0);
         fill(0);
-        rect(width/2.0, 9.0*height/10.0, 1.0*height/10.0, 0.5*height/10.0);
-        fill(255);
-        text("Mission "+cInfo.nMission, width/2.0, 9.0*height/10.0);
+        rect(80,80,100,100);
 
+        stroke(255);
+        fill(255);
+        text("Banner End", 80, 80);
         popStyle();
     }
-    void display_start(){
+    void display_label_black(){
         pushStyle();
-        textAlign(CENTER, CENTER);
-        textSize(40);
         rectMode(CENTER);
+        textAlign(CENTER,CENTER);
 
+        stroke(0);
         fill(0);
-        rect(width/2.0, height/2.0, 3.0*height/10.0, 1.5*height/10.0);
-        fill(255);
-        text("START", width/2.0, height/2.0);
+        rect(80,80,100,100);
 
+        stroke(255);
+        fill(255);
+        text("Black", 80, 80);
         popStyle();
     }
-    void display_missionComplete(){
+    void display_label_screenStats(){
         pushStyle();
-        textAlign(CENTER, CENTER);
-        textSize(40);
         rectMode(CENTER);
+        textAlign(CENTER,CENTER);
 
+        stroke(0);
         fill(0);
-        rect(width/2.0, height/2.0, 3.0*height/10.0, 1.5*height/10.0);
+        rect(80,80,100,100);
+
+        stroke(255);
         fill(255);
-        text("Mission Complete", width/2.0, height/2.0);
-
+        text("Screen Stats", 80, 80);
         popStyle();
     }
-    void display_fadeToBlack(int fadeTime, int cTime){
+    void display_label_bannerRoundStart(){
         pushStyle();
-        textAlign(CENTER, CENTER);
-        textSize(40);
         rectMode(CENTER);
+        textAlign(CENTER,CENTER);
 
-        float fadeCoeff = exp(5.0*cTime/fadeTime -10.0);
-
-        fill(0,0,0, 255*fadeCoeff);
-        rect(width/2.0, height/2.0, width, height);
-
-        popStyle();
-    }
-    void display_fadeOutBlack(int fadeTime, int cTime){
-        pushStyle();
-        textAlign(CENTER, CENTER);
-        textSize(40);
-        rectMode(CENTER);
-
-        float fadeCoeff = exp(-5.0*cTime/fadeTime);
-
-        fill(0,0,0, 255*fadeCoeff);
-        rect(width/2.0, height/2.0, width, height);
-
-        popStyle();
-    }
-    void display_transitionScreen(){
-        pushStyle();
-        textAlign(CENTER, CENTER);
-        textSize(40);
-        rectMode(CENTER);
-
+        stroke(0);
         fill(0);
-        rect(width/2.0, height/2.0, width, height);
-        fill(255);
-        text("[TRANSITION]", width/2.0, height/2.0);
+        rect(80,80,100,100);
 
+        stroke(255);
+        fill(255);
+        text("Banner Start", 80, 80);
         popStyle();
     }
 
-
-
-    void displayResultsMenu(info cInfo){
-        //pass
-    }
-
-
-
-    void displayTransitionScreen(info cInfo){
-        //pass
-    }
 }

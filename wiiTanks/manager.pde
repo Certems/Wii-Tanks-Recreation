@@ -5,11 +5,16 @@ class manager{
     GameStates;
     -----------
     0 = game screen
-    1 = ...
+    1 = transition mission success
+    2 = ...
     ...
     */
     calculator cCalculator  = new calculator();
     graphics cGraphics      = new graphics();
+
+    //Transition States
+    transition_missionSuccess cTransition_missionSuccess = new transition_missionSuccess();
+    transition_missionFail cTransition_missionFail       = new transition_missionFail();
 
     stage cStage;
     info cInfo = new info();
@@ -27,7 +32,6 @@ class manager{
         e.g gameStates, 1st stage, ... 
         */
         gameState.add(0);
-        gameState.add(1);
         loadStagePreset(1);
     }
 
@@ -58,6 +62,26 @@ class manager{
             cCalculator.calcMouseReleased( gameState.get(i),cStage );}
     }
 
+    void removeFromStates(int stateNumber){
+        /*
+        Note; This only removes 1 instance of the given state
+        (Could do N if you go backwards, but unnecessary and inefficient)
+        */
+        for(int i=0; i<gameState.size(); i++){
+            if(gameState.get(i) == stateNumber){     //** Note; This assumes 
+                gameState.remove(i);
+                break;
+            }
+        }
+    }
+    void startTransition_missionSuccess(){
+        cManager.cTransition_missionSuccess.reset_state();
+        cManager.gameState.add(1);
+    }
+    void startTransition_missionFail(){
+        cManager.cTransition_missionFail.reset_state();
+        cManager.gameState.add(2);
+    }
 
     tile generate_tile(int tileType){
         /*
