@@ -22,3 +22,11 @@ void mousePressed(){
 void mouseReleased(){
     cManager.calcControls_mouseReleased();
 }
+
+/*
+TodoList;
+--> Fix collision bugs
+--> Ensure transitions work / are implemented better
+--> Add more stages + assests for transition
+--> Do AI tank decision making
+*/
