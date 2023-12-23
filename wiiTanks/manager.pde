@@ -5,9 +5,7 @@ class manager{
     GameStates;
     -----------
     0 = game screen
-    1 = banners
-    2 = results menu
-    3 = transition menu
+    1 = ...
     ...
     */
     calculator cCalculator  = new calculator();
@@ -17,7 +15,6 @@ class manager{
     info cInfo = new info();
 
     ArrayList<Integer> gameState = new ArrayList<Integer>();   //Lists which menus to show, in which order
-    ArrayList<coordinator> coordEvents = new ArrayList<coordinator>();  //Stores coordination instances (timed sequences of events) to be resolved
 
     manager(){
         loadAll();
@@ -43,14 +40,6 @@ class manager{
     void calcGameState(){
         for(int i=0; i<gameState.size(); i++){
             cCalculator.calcState( gameState.get(i) );}
-    }
-    void resolveCoordinator(){
-        for(int i=coordEvents.size()-1; i>=0; i--){
-            if(!coordEvents.get(i).eventComplete){
-                coordEvents.get(i).progressEvent();}
-            else{
-                coordEvents.remove(i);}
-        }
     }
     void calcControls_keyPressed(){
         for(int i=0; i<gameState.size(); i++){

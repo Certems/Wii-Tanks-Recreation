@@ -117,9 +117,6 @@ class calculator{
 
     void calcRoundOver(stage cStage){
         if( checkRoundOver(cStage) && !cManager.cInfo.roundOver ){
-            ArrayList<Integer> timeSet = new ArrayList<Integer>();
-            timeSet.add(2);timeSet.add(2);timeSet.add(2);timeSet.add(2);timeSet.add(2);timeSet.add(2);
-            cManager.coordEvents.add( new coordinator(0, timeSet) );
             cManager.cInfo.roundOver = true;
         }
     }

@@ -8,7 +8,6 @@ void draw(){
     background(0,0,0);
     cManager.calcGameState();
     cManager.displayGameState();
-    cManager.resolveCoordinator();
 }
 
 void keyPressed(){
