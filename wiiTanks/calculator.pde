@@ -432,22 +432,37 @@ class calculator{
         /*
         Moves an entity backwards out of a box
 
+        --> This will check 3x3 area to ensure it is fully removed from collision even after moving out THIS box
+        -> p here specifies the centre of the 3x3 it will check
         Assumes [ENTITY IS CIRCLE] and [OTHER IS BOX]
 
         Centre = p
         Dim = d (in terms of # tWidths NOT pixels)
         Then sets velocity of entity to 0
         */
-        float scale = 0.20;         //**Resolution of backwards moving (relative to frames)
-        int countermeasure = 0;     //**Safety against infinite loops
+        float scale        = 0.2;  //**Resolution of backwards moving (relative to frames)
+        int countermeasure = 0;    //**Safety against infinite loops
         PVector nVel = new PVector(scale*cEntity.vel.x, scale*cEntity.vel.y, scale*cEntity.vel.z);   //New velocity
-        while(countermeasure < 300){
+        while(countermeasure < 1000){
             cEntity.pos.x -= nVel.x;
             cEntity.pos.y -= nVel.y;
             cEntity.pos.z -= nVel.z;
-            boolean stillColliding = checkCircleBoxCollision(cEntity.pos, cEntity.dim.x, p, d, rot, cStage);
+            boolean stillColliding = false;
+            for(int j=int(p.y)-1; j<int(p.y)+1; j++){
+                for(int i=int(p.x)-1; i<int(p.x)+1; i++){
+                    PVector newCoord = new PVector(i,j);
+                    PVector newPos   = cStage.get_tilePos(newCoord);
+                    if(cStage.tiles.get(int(newCoord.y)).get(int(newCoord.x)).shellCollision){
+                        if(checkCircleBoxCollision(cEntity.pos, cEntity.dim.x, newPos, d, rot, cStage) ){
+                            stillColliding = true;
+                            break;
+                        }
+                    }
+                }
+                if(stillColliding){
+                    break;}
+            }
             if(!stillColliding){
-                //cEntity.vel = new PVector(0,0,0);
                 break;}
             countermeasure++;
         }
@@ -512,26 +527,68 @@ class calculator{
     LEGACY ABOVE
     --------------
     */
-    void deflectShellOffWall(shell cShell, PVector bPos, PVector bDim, stage cStage){
+    void deflectShellOffWall(shell cShell, stage cStage){
         /*
-        Find side intercept with line equation, taking solutions for -ve t
-        that fit in correct bounds
-        Only check one side which if false => other is correct
-        Therefore ONLY checking x crossing
+        Will move a projectile out of a wall and collide appropriately. This will account 
+        for travelling through walls (e.g at corners)
+        Note; This will break if called and is NOT inside a wall
 
-        p1
-        |     p2
-        |     |
-         |---| --- p3
-         |   |
-         |---| --- p4
-
-        1. r = x_0 + vel*k
-            Where x comp = p1 or p2
-        2. For given k, is the y value in the bounds
-        3. If so, is a vertical collision
-        4. If not, is horizontal
+        1. Check if it is colliding with anything, --> Keep on moving back
+        2. Consider the line projecting forward, see what it hits first
+        3. Reflect according to this collision
         */
+        println("DEFLECTING");
+        int limiter = 0;    //Should only occur 3 times max ish, usually only once
+        //1
+        while(limiter < 1000){
+            //#####################################################################
+            //## MAY HAVE PROBLEMS IF TARGET IS SPAWNED INSIDE A BOX IMMEDIATELY ##
+            //#####################################################################
+            PVector boxCoord = cStage.get_tileCoord(cShell.pos);    //Tile shell appears in
+            boolean collisionOccurred = false;
+            //## MAKE IT CHECK OUT OF BOUNDS ##
+            for(int j=int(boxCoord.y)-1; j<int(boxCoord.y)+1; j++){          //##Check 3x3##
+                for(int i=int(boxCoord.x)-1; i<int(boxCoord.x)+1; i++){      //##Check 3x3##
+                    PVector currentCoord = new PVector(i,j);
+                    PVector currentPos   = cStage.get_tilePos(currentCoord);
+                    if(cStage.tiles.get(int(currentCoord.y)).get(int(currentCoord.x)).shellCollision){
+                        if( checkCircleBoxCollision(cShell.pos, cShell.dim.x, currentPos, new PVector(cStage.tWidth, cStage.tWidth), 0, cStage) ){
+                            collisionOccurred = true;
+                            break;
+                        }
+                    }
+                }
+                if(collisionOccurred){
+                    break;}
+            }
+            if(collisionOccurred){
+                //###########
+                //## THIS NEEDS TO BE CHANGED TO A "KEEP MOVING UNTIL 3X3 HAS NO COLLISION"
+                //###########
+                //moveEntityOutCircleBoxCollision(cShell, boxPos, new PVector(cStage.tWidth, cStage.tWidth), 0, cStage);
+            }
+            else{
+                break;}
+            limiter++;
+            println("Limiter --> ",limiter);
+        }
+        //2
+        boolean isVerticalCollision = determine_earlyCollisionDir_wall(cShell.pos, vecUnit(cShell.vel), cStage);
+        //3
+        cShell.vel = new PVector(0,0);
+        //if(isVerticalCollision){
+        //    cShell.vel.x *= -1.0;}
+        //else{
+        //    cShell.vel.y *= -1.0;}
+
+
+
+        /*
+        OLD METHOD
+        BROKEN AT CORNERS
+        --> MOVEOUT FUNC HAS BEEN CHANGED SINCE PERHAPS
+
+
         //1
         float p1 = bPos.x -cStage.tWidth*bDim.x/2.0;
         float p2 = bPos.x +cStage.tWidth*bDim.x/2.0;
@@ -548,6 +605,7 @@ class calculator{
         if(inBounds){
             //Valid => Vertical collision (flip X)
             //3
+            //Ensure this fully moves out of ALL nearby box collisions --> Keep checking 3x3
             moveEntityOutCircleBoxCollision(cShell, bPos, bDim, 0, cStage);
             cShell.vel.x *= -1;
         }
@@ -557,6 +615,26 @@ class calculator{
             moveEntityOutCircleBoxCollision(cShell, bPos, bDim, 0, cStage);
             cShell.vel.y *= -1;
         }
+        */
+    }
+    boolean determine_earlyCollisionDir_wall(PVector iPos, PVector dir, stage cStage){
+        /*
+        #####
+        ## THIS SEEMS BAD
+        #####
+        */
+        return true;
+    }
+    float find_interceptionFactor(PVector iPos, PVector dir, PVector point1, PVector point2){
+        /*
+        Finds the magnitude of the distance between the 2 lines defined
+        */
+        PVector wall_dir = new PVector(point1.x-point2.x, point1.y-point2.y);
+        PVector disp = new PVector(iPos.x-point1.x, iPos.y-point1.y);
+        float lambda = 999999999.0;
+        if(dir.x/dir.y != wall_dir.x/wall_dir.y){   //If not parallel
+            lambda = (wall_dir.x*disp.y - wall_dir.y*disp.x)/(dir.x*wall_dir.y - dir.y*wall_dir.x);}
+        return lambda;
     }
     void checkCollision_tankWall(stage cStage){
         /*
@@ -664,7 +742,7 @@ class calculator{
                     }
                     else{
                         //Otherwise deflect it
-                        deflectShellOffWall(cStage.shells.get(i), wallPos, wallDim, cStage);
+                        deflectShellOffWall(cStage.shells.get(i), cStage);
                     }
                 }
             }
